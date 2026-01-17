@@ -12,12 +12,17 @@ public partial class SettingsWindow : Window
 {
     private readonly AppSettings _settings;
     private readonly AppSettings _originalSettings;
+    private readonly VolumeService _volumeService;
     
     public SettingsWindow(AppSettings settings)
     {
         InitializeComponent();
         
         _settings = settings;
+        _volumeService = new VolumeService();
+        
+        // Sync volume with current system volume
+        _settings.Volume = _volumeService.GetVolume();
         
         // Store original values to detect changes
         _originalSettings = new AppSettings
@@ -31,6 +36,15 @@ public partial class SettingsWindow : Window
         };
         
         DataContext = _settings;
+        
+        // Subscribe to volume slider changes for real-time preview
+        VolumeSlider.ValueChanged += VolumeSlider_ValueChanged;
+    }
+    
+    private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+    {
+        // Apply volume in real-time as user drags slider
+        _volumeService.SetVolume((int)e.NewValue);
     }
     
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -50,15 +64,22 @@ public partial class SettingsWindow : Window
             AutoStartService.SetAutoStart(_settings.AutoStart, _settings.StartMinimized);
         }
         
+        // Apply final volume
+        _volumeService.SetVolume(_settings.Volume);
+        
         // Save settings to file
         _settings.Save();
         
+        _volumeService.Dispose();
         DialogResult = true;
         Close();
     }
     
     private void CancelButton_Click(object sender, RoutedEventArgs e)
     {
+        // Restore original volume
+        _volumeService.SetVolume(_originalSettings.Volume);
+        
         // Restore original values
         _settings.Volume = _originalSettings.Volume;
         _settings.AutoStart = _originalSettings.AutoStart;
@@ -67,6 +88,7 @@ public partial class SettingsWindow : Window
         _settings.AutoConnect = _originalSettings.AutoConnect;
         _settings.ShowNotifications = _originalSettings.ShowNotifications;
         
+        _volumeService.Dispose();
         DialogResult = false;
         Close();
     }
