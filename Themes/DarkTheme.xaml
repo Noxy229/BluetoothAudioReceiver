@@ -284,11 +284,12 @@
         <Setter Property="ScrollViewer.CanContentScroll" Value="true"/>
         <Setter Property="FontSize" Value="13"/>
         <Style.Resources>
+             <!-- Force dark background for the standard popup -->
             <SolidColorBrush x:Key="{x:Static SystemColors.WindowBrushKey}" Color="#0A0A0A"/>
+            <SolidColorBrush x:Key="{x:Static SystemColors.WindowTextBrushKey}" Color="#FFFFFF"/>
+            <!-- Force dark background for the control itself if it falls back to system theme -->
             <SolidColorBrush x:Key="{x:Static SystemColors.ControlBrushKey}" Color="#0A0A0A"/>
             <SolidColorBrush x:Key="{x:Static SystemColors.ControlTextBrushKey}" Color="#FFFFFF"/>
-            <SolidColorBrush x:Key="{x:Static SystemColors.ButtonFaceBrushKey}" Color="#0A0A0A"/>
-            <SolidColorBrush x:Key="{x:Static SystemColors.ButtonTextBrushKey}" Color="#FFFFFF"/>
         </Style.Resources>
     </Style>
     
