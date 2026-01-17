@@ -5,6 +5,9 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
+    <Authors>Noxy</Authors>
+    <Company>Noxy</Company>
+    <Product>Bluetooth Audio Receiver</Product>
     <AssemblyName>BluetoothAudioReceiver</AssemblyName>
     <RootNamespace>BluetoothAudioReceiver</RootNamespace>
     <PublishSingleFile>true</PublishSingleFile>
