@@ -34,6 +34,8 @@ A modern Windows app that turns your PC into a Bluetooth speaker. Stream audio f
 3. Pair your phone via Windows Bluetooth settings
 4. Select your device and click "Verbinden"
 
+> ⚠️ **Windows SmartScreen Warning:** Since the app isn't code-signed, Windows may show a warning. Click "More info" → "Run anyway" to start the app. This is normal for open-source software.
+
 ## 🛠️ Building from Source
 
 ```bash
