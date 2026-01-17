@@ -47,7 +47,7 @@
                 <StackPanel>
                     
                     <!-- Volume Section -->
-                    <TextBlock Text="LAUTSTÄRKE" Style="{StaticResource SectionHeaderStyle}"/>
+                    <TextBlock x:Name="VolumeHeader" Text="VOLUME" Style="{StaticResource SectionHeaderStyle}"/>
                     <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
                         <Grid>
                             <Grid.ColumnDefinitions>
@@ -72,17 +72,17 @@
                     </Border>
                     
                     <!-- Startup Section -->
-                    <TextBlock Text="AUTOSTART" Style="{StaticResource SectionHeaderStyle}"/>
+                    <TextBlock x:Name="AutostartHeader" Text="AUTOSTART" Style="{StaticResource SectionHeaderStyle}"/>
                     <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
                         <StackPanel>
                             <CheckBox x:Name="AutoStartCheckBox" 
-                                      Content="Mit Windows starten"
+                                      Content="Start with Windows"
                                       IsChecked="{Binding AutoStart}"
                                       Style="{StaticResource ToggleSwitchStyle}"
                                       Margin="0,0,0,14"/>
                             
                             <CheckBox x:Name="StartMinimizedCheckBox" 
-                                      Content="Minimiert starten"
+                                      Content="Start minimized"
                                       IsChecked="{Binding StartMinimized}"
                                       IsEnabled="{Binding AutoStart}"
                                       Style="{StaticResource ToggleSwitchStyle}"/>
@@ -90,26 +90,56 @@
                     </Border>
                     
                     <!-- Behavior Section -->
-                    <TextBlock Text="VERHALTEN" Style="{StaticResource SectionHeaderStyle}"/>
+                    <TextBlock x:Name="BehaviorHeader" Text="BEHAVIOR" Style="{StaticResource SectionHeaderStyle}"/>
                     <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
                         <StackPanel>
                             <CheckBox x:Name="MinimizeToTrayCheckBox" 
-                                      Content="In System Tray minimieren"
+                                      Content="Minimize to system tray"
                                       IsChecked="{Binding MinimizeToTray}"
                                       Style="{StaticResource ToggleSwitchStyle}"
                                       Margin="0,0,0,14"/>
                             
                             <CheckBox x:Name="AutoConnectCheckBox" 
-                                      Content="Automatisch verbinden"
+                                      Content="Auto-connect"
                                       IsChecked="{Binding AutoConnect}"
                                       Style="{StaticResource ToggleSwitchStyle}"
                                       Margin="0,0,0,14"/>
                             
                             <CheckBox x:Name="ShowNotificationsCheckBox" 
-                                      Content="Benachrichtigungen anzeigen"
+                                      Content="Show notifications"
                                       IsChecked="{Binding ShowNotifications}"
                                       Style="{StaticResource ToggleSwitchStyle}"/>
                         </StackPanel>
+                    </Border>
+                    
+                    <!-- Language Section -->
+                    <TextBlock x:Name="LanguageHeader" Text="LANGUAGE" Style="{StaticResource SectionHeaderStyle}"/>
+                    <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
+                        <ComboBox x:Name="LanguageComboBox"
+                                  SelectedValue="{Binding Language}"
+                                  SelectedValuePath="Tag"
+                                  SelectionChanged="LanguageComboBox_SelectionChanged"
+                                  Background="{StaticResource SurfaceVariantBrush}"
+                                  Foreground="{StaticResource TextPrimaryBrush}"
+                                  BorderThickness="0"
+                                  Padding="12,10"
+                                  FontSize="13">
+                            <ComboBoxItem Content="English" Tag="en"/>
+                            <ComboBoxItem Content="Deutsch" Tag="de"/>
+                            <ComboBoxItem Content="Español" Tag="es"/>
+                            <ComboBoxItem Content="Français" Tag="fr"/>
+                            <ComboBoxItem Content="Italiano" Tag="it"/>
+                            <ComboBoxItem Content="Português" Tag="pt"/>
+                            <ComboBoxItem Content="Nederlands" Tag="nl"/>
+                            <ComboBoxItem Content="Polski" Tag="pl"/>
+                            <ComboBoxItem Content="Русский" Tag="ru"/>
+                            <ComboBoxItem Content="Українська" Tag="uk"/>
+                            <ComboBoxItem Content="Türkçe" Tag="tr"/>
+                            <ComboBoxItem Content="日本語" Tag="ja"/>
+                            <ComboBoxItem Content="한국어" Tag="ko"/>
+                            <ComboBoxItem Content="中文" Tag="zh"/>
+                            <ComboBoxItem Content="العربية" Tag="ar"/>
+                        </ComboBox>
                     </Border>
                     
                 </StackPanel>
@@ -127,12 +157,14 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <Button Content="Abbrechen" 
+                    <Button x:Name="CancelButton"
+                            Content="Cancel" 
                             Click="CancelButton_Click"
                             Style="{StaticResource SecondaryButtonStyle}"/>
                     
-                    <Button Grid.Column="2"
-                            Content="Speichern" 
+                    <Button x:Name="SaveButton"
+                            Grid.Column="2"
+                            Content="Save" 
                             Click="SaveButton_Click"
                             Style="{StaticResource PrimaryButtonStyle}"/>
                 </Grid>

@@ -55,6 +55,11 @@ public class AppSettings
     public bool ShowNotifications { get; set; } = true;
     
     /// <summary>
+    /// UI language code (e.g., "en", "de", "es").
+    /// </summary>
+    public string Language { get; set; } = "en";
+    
+    /// <summary>
     /// Loads settings from disk, or returns defaults if not found.
     /// </summary>
     public static AppSettings Load()
