@@ -44,6 +44,10 @@ public partial class SettingsWindow : Window
         
         DataContext = _settings;
         
+        // Setup language ComboBox
+        LanguageComboBox.ItemsSource = LocalizationService.AvailableLanguages;
+        LanguageComboBox.SelectedValue = _settings.Language;
+        
         // Subscribe to volume slider changes for real-time preview
         VolumeSlider.ValueChanged += VolumeSlider_ValueChanged;
         

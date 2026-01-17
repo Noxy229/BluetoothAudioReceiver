@@ -116,30 +116,11 @@
                     <TextBlock x:Name="LanguageHeader" Text="LANGUAGE" Style="{StaticResource SectionHeaderStyle}"/>
                     <Border Style="{StaticResource CardStyle}" Margin="0,0,0,16">
                         <ComboBox x:Name="LanguageComboBox"
-                                  SelectedValue="{Binding Language}"
-                                  SelectedValuePath="Tag"
                                   SelectionChanged="LanguageComboBox_SelectionChanged"
-                                  Background="{StaticResource SurfaceVariantBrush}"
-                                  Foreground="{StaticResource TextPrimaryBrush}"
-                                  BorderThickness="0"
-                                  Padding="12,10"
-                                  FontSize="13">
-                            <ComboBoxItem Content="English" Tag="en"/>
-                            <ComboBoxItem Content="Deutsch" Tag="de"/>
-                            <ComboBoxItem Content="Español" Tag="es"/>
-                            <ComboBoxItem Content="Français" Tag="fr"/>
-                            <ComboBoxItem Content="Italiano" Tag="it"/>
-                            <ComboBoxItem Content="Português" Tag="pt"/>
-                            <ComboBoxItem Content="Nederlands" Tag="nl"/>
-                            <ComboBoxItem Content="Polski" Tag="pl"/>
-                            <ComboBoxItem Content="Русский" Tag="ru"/>
-                            <ComboBoxItem Content="Українська" Tag="uk"/>
-                            <ComboBoxItem Content="Türkçe" Tag="tr"/>
-                            <ComboBoxItem Content="日本語" Tag="ja"/>
-                            <ComboBoxItem Content="한국어" Tag="ko"/>
-                            <ComboBoxItem Content="中文" Tag="zh"/>
-                            <ComboBoxItem Content="العربية" Tag="ar"/>
-                        </ComboBox>
+                                  DisplayMemberPath="Value"
+                                  SelectedValuePath="Key"
+                                  SelectedValue="{Binding Language}"
+                                  FontSize="13"/>
                     </Border>
                     
                 </StackPanel>
