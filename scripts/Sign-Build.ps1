@@ -5,7 +5,7 @@ param (
 
 $ErrorActionPreference = "Stop"
 $projectPath = "$PSScriptRoot\..\BluetoothAudioReceiver.csproj"
-$publishDir = "$PSScriptRoot\..\bin\Release\net6.0-windows\publish"
+$publishDir = "$PSScriptRoot\..\bin\Release\net8.0-windows10.0.19041.0\publish"
 
 # 1. Build and Publish
 Write-Host "Building and Publishing..."
@@ -22,7 +22,7 @@ if (Test-Path $CertPath) {
     Write-Host "Signing $exePath with $CertPath..."
     
     # Try using built-in Set-AuthenticodeSignature (works without signtool in many cases)
-    $cert = Get-PfxCertificate -FilePath $CertPath -Password (ConvertTo-SecureString -String $CertPassword -Force -AsPlainText -NoProfile)
+    $cert = Get-PfxCertificate -FilePath $CertPath -Password (ConvertTo-SecureString -String $CertPassword -Force -AsPlainText)
     Set-AuthenticodeSignature -FilePath $exePath -Certificate $cert -HashAlgorithm SHA256 -TimestampServer "http://timestamp.digicert.com"
     
     Write-Host "Signing Complete."
@@ -31,10 +31,12 @@ if (Test-Path $CertPath) {
     $sig = Get-AuthenticodeSignature $exePath
     if ($sig.Status -eq 'Valid') {
         Write-Host "SUCCESS: Signature is valid." -ForegroundColor Green
-    } else {
+    }
+    else {
         Write-Warning "Signature Status: $($sig.Status). The certificate might not be trusted on this machine yet, but the file is signed."
     }
-} else {
+}
+else {
     Write-Warning "Certificate not found at $CertPath. Skipping signing."
     Write-Host "To create a test cert, run scripts\Create-Test-Cert.ps1"
 }
