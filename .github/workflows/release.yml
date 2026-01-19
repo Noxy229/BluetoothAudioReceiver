@@ -1,0 +1,50 @@
+name: Build and Release
+
+on:
+  release:
+    types: [created]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Create Test Certificate
+      # Re-generate the cert on the fly or use the one in repo if committed.
+      # Since we committed scripts/TestCert.pfx, we can use it.
+      # Ideally we'd use a secret, but for this "one-click" setup we use the repo file.
+      run: |
+        Write-Host "Using existing certificate from scripts/TestCert.pfx"
+
+    - name: Build and Sign
+      run: |
+        .\scripts\Sign-Build.ps1
+      shell: powershell
+
+    - name: Upload Release Asset
+      uses: softprops/action-gh-release@v1
+      if: github.event_name == 'release'
+      with:
+        files: |
+          bin/Release/net8.0-windows10.0.19041.0/publish/BluetoothAudioReceiver.exe
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Upload Artifact (Manually Triggered)
+      uses: actions/upload-artifact@v4
+      if: github.event_name == 'workflow_dispatch'
+      with:
+        name: BluetoothAudioReceiver-Signed
+        path: bin/Release/net8.0-windows10.0.19041.0/publish/BluetoothAudioReceiver.exe
