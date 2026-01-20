@@ -114,6 +114,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
             {
                 Status = "Idle";
                 StatusDetail = "Select a device to connect";
+
+                // Reset streaming status for all devices when disconnected
+                for (int i = 0; i < Devices.Count; i++)
+                {
+                    if (Devices[i].IsAudioStreaming)
+                    {
+                        Devices[i].IsAudioStreaming = false;
+                        Devices[i] = Devices[i]; // Trigger UI update
+                    }
+                }
             }
         });
     }
@@ -123,7 +133,24 @@ public partial class MainViewModel : ObservableObject, IDisposable
         Application.Current.Dispatcher.Invoke(() =>
         {
             Status = state;
-            if (state == "Streaming")
+            bool isStreaming = state == "Streaming";
+
+            // Update the streaming status on the specific device
+            var currentId = _audioService.CurrentDeviceId;
+            if (!string.IsNullOrEmpty(currentId))
+            {
+                for (int i = 0; i < Devices.Count; i++)
+                {
+                    if (Devices[i].Id == currentId)
+                    {
+                        Devices[i].IsAudioStreaming = isStreaming;
+                        Devices[i] = Devices[i]; // Trigger UI update
+                        break;
+                    }
+                }
+            }
+
+            if (isStreaming)
             {
                 StatusDetail = $"Receiving audio from {SelectedDevice?.Name}";
             }

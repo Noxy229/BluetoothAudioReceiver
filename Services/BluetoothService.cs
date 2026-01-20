@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Windows.Devices.Enumeration;
 using Windows.Media.Audio;
 using BluetoothAudioReceiver.Models;
@@ -15,6 +16,7 @@ public class BluetoothService : IDisposable
 {
     private DeviceWatcher? _deviceWatcher;
     private readonly Dictionary<string, BluetoothDevice> _devices = new();
+    private readonly object _lock = new();
     
     public event EventHandler<BluetoothDevice>? DeviceAdded;
     public event EventHandler<string>? DeviceRemoved;
@@ -23,7 +25,13 @@ public class BluetoothService : IDisposable
     /// <summary>
     /// Gets all currently known paired Bluetooth devices.
     /// </summary>
-    public IEnumerable<BluetoothDevice> GetDevices() => _devices.Values;
+    public IEnumerable<BluetoothDevice> GetDevices()
+    {
+        lock (_lock)
+        {
+            return _devices.Values.ToList();
+        }
+    }
     
     /// <summary>
     /// Starts watching for Bluetooth devices that support audio playback.
@@ -33,6 +41,11 @@ public class BluetoothService : IDisposable
     {
         if (_deviceWatcher != null) return;
         
+        lock (_lock)
+        {
+            _devices.Clear();
+        }
+
         // Use AudioPlaybackConnection selector to get devices with compatible IDs
         string selector = AudioPlaybackConnection.GetDeviceSelector();
         
@@ -80,13 +93,20 @@ public class BluetoothService : IDisposable
                           && connected is bool isConnected && isConnected
         };
         
-        _devices[device.Id] = btDevice;
+        lock (_lock)
+        {
+            _devices[device.Id] = btDevice;
+        }
         DeviceAdded?.Invoke(this, btDevice);
     }
     
     private void OnDeviceUpdated(DeviceWatcher sender, DeviceInformationUpdate update)
     {
-        if (!_devices.TryGetValue(update.Id, out var device)) return;
+        BluetoothDevice? device;
+        lock (_lock)
+        {
+            if (!_devices.TryGetValue(update.Id, out device)) return;
+        }
         
         if (update.Properties.TryGetValue("System.Devices.Aep.IsConnected", out var connected))
         {
@@ -98,7 +118,13 @@ public class BluetoothService : IDisposable
     
     private void OnDeviceRemoved(DeviceWatcher sender, DeviceInformationUpdate update)
     {
-        if (_devices.Remove(update.Id))
+        bool removed;
+        lock (_lock)
+        {
+            removed = _devices.Remove(update.Id);
+        }
+
+        if (removed)
         {
             DeviceRemoved?.Invoke(this, update.Id);
         }
@@ -112,6 +138,9 @@ public class BluetoothService : IDisposable
     public void Dispose()
     {
         StopWatching();
-        _devices.Clear();
+        lock (_lock)
+        {
+            _devices.Clear();
+        }
     }
 }
