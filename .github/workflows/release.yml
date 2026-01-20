@@ -22,11 +22,10 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Create Test Certificate
-      # Re-generate the cert on the fly or use the one in repo if committed.
-      # Since we committed scripts/TestCert.pfx, we can use it.
-      # Ideally we'd use a secret, but for this "one-click" setup we use the repo file.
+      # Generate a temporary test certificate on the fly.
       run: |
-        Write-Host "Using existing certificate from scripts/TestCert.pfx"
+        .\scripts\Create-Test-Cert.ps1
+      shell: powershell
 
     - name: Build and Sign
       run: |
