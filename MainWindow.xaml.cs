@@ -29,6 +29,8 @@ public partial class MainWindow : Window
         _settings = AppSettings.Load();
         
         // Initialize ViewModel
+        // The MainViewModel handles the actual Bluetooth connection logic and state management.
+        // MainWindow observes this ViewModel to update the UI.
         _viewModel = new MainViewModel();
         DataContext = _viewModel;
         
@@ -91,14 +93,17 @@ public partial class MainWindow : Window
     
     #region ViewModel Events
     
+    // Monitors the ViewModel for changes in connection state to update the System Tray and User Interface.
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
         if (_viewModel == null || _trayService == null) return;
         
+        // Update tray tooltip when status changes (e.g., "Connecting...", "Connected")
         if (e.PropertyName == nameof(MainViewModel.Status))
         {
             _trayService.UpdateStatus(_viewModel.Status);
         }
+        // Handle successful connection events
         else if (e.PropertyName == nameof(MainViewModel.IsConnected))
         {
             if (_viewModel.IsConnected)
@@ -207,17 +212,20 @@ public partial class MainWindow : Window
 
 /// <summary>
 /// Converter to determine if the Open Connection button should be enabled.
+///Logic: Enable button only if a device is selected, we are NOT already connected, and NOT currently connecting.
 /// </summary>
 public class CanConnectConverter : IMultiValueConverter
 {
     public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
     {
+        // Expecting 3 values: SelectedDevice (object), IsConnected (bool), IsConnecting (bool)
         if (values.Length < 3) return false;
         
         var hasSelectedDevice = values[0] != null;
         var isConnected = values[1] is bool connected && connected;
         var isConnecting = values[2] is bool connecting && connecting;
         
+        // Button enabled = Device Selected AND Not Connected AND Not Connecting
         return hasSelectedDevice && !isConnected && !isConnecting;
     }
     

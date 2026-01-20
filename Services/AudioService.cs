@@ -73,10 +73,11 @@ public class AudioService : IDisposable
     
     private async Task<bool> TryOpenConnectionAsync(string deviceId, int attempt)
     {
-        // Create audio playback connection
-        _audioConnection = AudioPlaybackConnection.TryCreateFromId(deviceId);
+        // Use local variable to prevent assigning to field before success
+        // This avoids race conditions and ensures easier cleanup on failure
+        AudioPlaybackConnection? connection = AudioPlaybackConnection.TryCreateFromId(deviceId);
         
-        if (_audioConnection == null)
+        if (connection == null)
         {
             if (attempt == MaxRetries)
             {
@@ -85,43 +86,57 @@ public class AudioService : IDisposable
             return false;
         }
         
-        _currentDeviceId = deviceId;
-        
-        // Subscribe to state changes (event-driven, no polling!)
-        _audioConnection.StateChanged += OnConnectionStateChanged;
-        
-        // Start the audio connection
-        await _audioConnection.StartAsync();
-        
-        // Open the connection to begin receiving audio
-        var result = await _audioConnection.OpenAsync();
-        
-        if (result.Status != AudioPlaybackConnectionOpenResultStatus.Success)
+        try
         {
-            // Extended error info
-            var extendedError = result.ExtendedError?.Message ?? "No extended error";
+            // Subscribe to state changes (event-driven, no polling!)
+            connection.StateChanged += OnConnectionStateChanged;
             
-            if (attempt == MaxRetries)
+            // Start the audio connection
+            await connection.StartAsync();
+
+            // Open the connection to begin receiving audio
+            var result = await connection.OpenAsync();
+
+            if (result.Status != AudioPlaybackConnectionOpenResultStatus.Success)
             {
-                ErrorOccurred?.Invoke(this, $"Failed to open audio connection: {result.Status}");
+                // Extended error info
+                var extendedError = result.ExtendedError?.Message ?? "No extended error";
+
+                if (attempt == MaxRetries)
+                {
+                    ErrorOccurred?.Invoke(this, $"Failed to open audio connection: {result.Status}");
+                }
+
+                // Clean up failed connection
+                connection.StateChanged -= OnConnectionStateChanged;
+                connection.Dispose();
+                return false;
             }
             
-            // Clean up failed connection
-            _audioConnection.StateChanged -= OnConnectionStateChanged;
-            _audioConnection.Dispose();
-            _audioConnection = null;
-            return false;
+            // Success - assign to field
+            _audioConnection = connection;
+            _currentDeviceId = deviceId;
+
+            // Give the audio subsystem a moment to initialize
+            await Task.Delay(200);
+
+            // Force a state update to ensure we're in the right state
+            IsStreaming = _audioConnection.State == AudioPlaybackConnectionState.Opened;
+            StreamingStateChanged?.Invoke(this, IsStreaming ? "Streaming" : "Connected");
+
+            ConnectionStateChanged?.Invoke(this, true);
+            return true;
         }
-        
-        // Give the audio subsystem a moment to initialize
-        await Task.Delay(200);
-        
-        // Force a state update to ensure we're in the right state
-        IsStreaming = _audioConnection.State == AudioPlaybackConnectionState.Opened;
-        StreamingStateChanged?.Invoke(this, IsStreaming ? "Streaming" : "Connected");
-        
-        ConnectionStateChanged?.Invoke(this, true);
-        return true;
+        catch
+        {
+            // Ensure cleanup if StartAsync or OpenAsync throws exception
+            if (connection != null)
+            {
+                connection.StateChanged -= OnConnectionStateChanged;
+                connection.Dispose();
+            }
+            throw; // Re-throw to allow retry logic in caller to function
+        }
     }
     
     /// <summary>
@@ -157,6 +172,17 @@ public class AudioService : IDisposable
     
     public void Dispose()
     {
-        _ = CloseConnectionAsync();
+        // Synchronous cleanup to prevent leaks
+        if (_audioConnection != null)
+        {
+            _audioConnection.StateChanged -= OnConnectionStateChanged;
+            _audioConnection.Dispose();
+            _audioConnection = null;
+        }
+
+        _currentDeviceId = null;
+        IsStreaming = false;
+
+        // Do not invoke events during disposal to avoid side effects
     }
 }
