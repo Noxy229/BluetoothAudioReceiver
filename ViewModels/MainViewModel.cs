@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
@@ -17,6 +18,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 {
     private readonly BluetoothService _bluetoothService;
     private readonly AudioService _audioService;
+    private readonly Dictionary<string, BluetoothDevice> _deviceMap = new();
     
     [ObservableProperty]
     private ObservableCollection<BluetoothDevice> _devices = new();
@@ -61,8 +63,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            Devices.Add(device);
-            StatusDetail = $"{Devices.Count} device(s) found";
+            if (!_deviceMap.ContainsKey(device.Id))
+            {
+                Devices.Add(device);
+                _deviceMap[device.Id] = device;
+                StatusDetail = $"{Devices.Count} device(s) found";
+            }
         });
     }
     
@@ -70,15 +76,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            for (int i = Devices.Count - 1; i >= 0; i--)
+            if (_deviceMap.TryGetValue(deviceId, out var device))
             {
-                if (Devices[i].Id == deviceId)
-                {
-                    Devices.RemoveAt(i);
-                    break;
-                }
+                Devices.Remove(device);
+                _deviceMap.Remove(deviceId);
+                StatusDetail = $"{Devices.Count} device(s) found";
             }
-            StatusDetail = $"{Devices.Count} device(s) found";
         });
     }
     
@@ -86,12 +89,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            for (int i = 0; i < Devices.Count; i++)
+            if (_deviceMap.TryGetValue(device.Id, out var oldDevice))
             {
-                if (Devices[i].Id == device.Id)
+                int index = Devices.IndexOf(oldDevice);
+                if (index != -1)
                 {
-                    Devices[i] = device;
-                    break;
+                    Devices[index] = device;
+                    _deviceMap[device.Id] = device;
                 }
             }
         });
@@ -162,6 +166,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private void RefreshDevices()
     {
         Devices.Clear();
+        _deviceMap.Clear();
         _bluetoothService.StopWatching();
         _bluetoothService.StartWatching();
         StatusDetail = "Scanning for devices...";
