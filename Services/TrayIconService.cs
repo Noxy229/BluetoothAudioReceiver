@@ -38,20 +38,20 @@ public class TrayIconService : IDisposable
         // Create context menu
         var contextMenu = new ContextMenuStrip();
         
-        var showItem = new ToolStripMenuItem("Anzeigen");
+        var showItem = new ToolStripMenuItem(LocalizationService.Instance.Get("Show"));
         showItem.Click += (s, e) => ShowWindowRequested?.Invoke(this, EventArgs.Empty);
         showItem.Font = new Font(showItem.Font, System.Drawing.FontStyle.Bold);
         contextMenu.Items.Add(showItem);
         
         contextMenu.Items.Add(new ToolStripSeparator());
         
-        var settingsItem = new ToolStripMenuItem("Einstellungen");
+        var settingsItem = new ToolStripMenuItem(LocalizationService.Instance.Get("Settings"));
         settingsItem.Click += (s, e) => SettingsRequested?.Invoke(this, EventArgs.Empty);
         contextMenu.Items.Add(settingsItem);
         
         contextMenu.Items.Add(new ToolStripSeparator());
         
-        var exitItem = new ToolStripMenuItem("Beenden");
+        var exitItem = new ToolStripMenuItem(LocalizationService.Instance.Get("Exit"));
         exitItem.Click += (s, e) => ExitRequested?.Invoke(this, EventArgs.Empty);
         contextMenu.Items.Add(exitItem);
         
