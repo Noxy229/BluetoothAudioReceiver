@@ -38,7 +38,9 @@
                             Style="{StaticResource CloseButtonStyle}"
                             HorizontalAlignment="Right"
                             FontSize="11"
-                            Foreground="{StaticResource TextSecondaryBrush}"/>
+                            Foreground="{StaticResource TextSecondaryBrush}"
+                            ToolTip="Schließen"
+                            AutomationProperties.Name="Schließen"/>
                 </Grid>
             </Border>
             

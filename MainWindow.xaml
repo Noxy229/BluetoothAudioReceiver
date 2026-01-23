@@ -51,12 +51,16 @@
                                 Click="MinimizeButton_Click"
                                 Style="{StaticResource TitleBarButtonStyle}"
                                 FontSize="11"
-                                Foreground="{StaticResource TextSecondaryBrush}"/>
+                                Foreground="{StaticResource TextSecondaryBrush}"
+                                ToolTip="Minimieren"
+                                AutomationProperties.Name="Minimieren"/>
                         <Button Content="✕" 
                                 Click="CloseButton_Click"
                                 Style="{StaticResource CloseButtonStyle}"
                                 FontSize="11"
-                                Foreground="{StaticResource TextSecondaryBrush}"/>
+                                Foreground="{StaticResource TextSecondaryBrush}"
+                                ToolTip="Schließen"
+                                AutomationProperties.Name="Schließen"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -94,6 +98,7 @@
                                 BorderThickness="0"
                                 Cursor="Hand"
                                 ToolTip="Hilfe"
+                                AutomationProperties.Name="Hilfe"
                                 Padding="6"
                                 Margin="0,0,4,0">
                             <TextBlock Text="❓" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
@@ -104,6 +109,7 @@
                                 BorderThickness="0"
                                 Cursor="Hand"
                                 ToolTip="Einstellungen"
+                                AutomationProperties.Name="Einstellungen"
                                 Padding="6">
                             <Viewbox Width="16" Height="16">
                                 <Canvas Width="24" Height="24">
@@ -166,7 +172,8 @@
                                     Foreground="{StaticResource TextSecondaryBrush}"
                                     BorderThickness="0"
                                     Cursor="Hand"
-                                    ToolTip="Aktualisieren"/>
+                                    ToolTip="Aktualisieren"
+                                    AutomationProperties.Name="Geräte aktualisieren"/>
                         </Grid>
                         
                         <!-- Device ListView -->
