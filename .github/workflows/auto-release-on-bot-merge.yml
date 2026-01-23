@@ -23,9 +23,20 @@ jobs:
       with:
         dotnet-version: '8.0.x'
 
+    - name: Generate Cert Password
+      run: |
+        $password = [Guid]::NewGuid().ToString()
+        echo "PFX_PASSWORD=$password" >> $env:GITHUB_ENV
+      shell: powershell
+
+    - name: Create Test Certificate
+      run: |
+        .\scripts\Create-Test-Cert.ps1 -CertPassword $env:PFX_PASSWORD
+      shell: powershell
+
     - name: Build and Sign
       run: |
-        .\scripts\Sign-Build.ps1
+        .\scripts\Sign-Build.ps1 -CertPassword $env:PFX_PASSWORD
       shell: powershell
 
     - name: Generate version tag
