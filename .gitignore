@@ -21,3 +21,6 @@ Thumbs.db
 
 # Publish profiles
 Properties/PublishProfiles/
+
+# Certificates
+*.pfx

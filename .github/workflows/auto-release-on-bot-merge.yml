@@ -1,0 +1,63 @@
+name: Auto Release on Bot Merge
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  check-and-release:
+    # Nur ausführen wenn ein PR gemerged wurde (nicht nur geschlossen)
+    if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'google-labs-jules[bot]'
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Create Test Certificate
+      run: |
+        Write-Host "Using existing certificate from scripts/TestCert.pfx"
+
+    - name: Build and Sign
+      run: |
+        .\scripts\Sign-Build.ps1
+      shell: powershell
+
+    - name: Generate version tag
+      id: version
+      run: |
+        $timestamp = Get-Date -Format "yyyy.MM.dd.HHmm"
+        $prNumber = "${{ github.event.pull_request.number }}"
+        $tag = "v$timestamp-pr$prNumber"
+        echo "tag=$tag" >> $env:GITHUB_OUTPUT
+        echo "Generated tag: $tag"
+      shell: powershell
+
+    - name: Create Release with EXE
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ steps.version.outputs.tag }}
+        name: "Auto-Release: ${{ github.event.pull_request.title }}"
+        body: |
+          🤖 **Automatisch erstellt nach Bot-Merge**
+
+          **PR:** #${{ github.event.pull_request.number }}
+          **Titel:** ${{ github.event.pull_request.title }}
+          **Merged by:** ${{ github.event.pull_request.merged_by.login }}
+        files: |
+          bin/Release/net8.0-windows10.0.19041.0/publish/BluetoothAudioReceiver.exe
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

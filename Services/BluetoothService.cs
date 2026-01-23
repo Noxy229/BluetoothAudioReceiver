@@ -88,7 +88,7 @@ public class BluetoothService : IDisposable
         var btDevice = new BluetoothDevice
         {
             Id = device.Id,
-            Name = string.IsNullOrEmpty(device.Name) ? "Unknown Device" : device.Name,
+            Name = string.IsNullOrEmpty(device.Name) ? LocalizationService.Instance["UnknownDevice"] : device.Name,
             IsConnected = device.Properties.TryGetValue("System.Devices.Aep.IsConnected", out var connected) 
                           && connected is bool isConnected && isConnected
         };
@@ -118,7 +118,7 @@ public class BluetoothService : IDisposable
     
     private void OnDeviceRemoved(DeviceWatcher sender, DeviceInformationUpdate update)
     {
-        bool removed;
+        bool removed = false;
         lock (_lock)
         {
             removed = _devices.Remove(update.Id);

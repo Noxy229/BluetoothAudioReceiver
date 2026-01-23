@@ -25,10 +25,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private BluetoothDevice? _selectedDevice;
     
     [ObservableProperty]
-    private string _status = "Idle";
+    private string _status = LocalizationService.Instance.Get("Idle");
     
     [ObservableProperty]
-    private string _statusDetail = "Select a device to connect";
+    private string _statusDetail = LocalizationService.Instance.Get("SelectDevice");
     
     [ObservableProperty]
     private bool _isConnecting;
@@ -59,16 +59,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     private void OnDeviceAdded(object? sender, BluetoothDevice device)
     {
-        Application.Current.Dispatcher.Invoke(() =>
+        Application.Current.Dispatcher.InvokeAsync(() =>
         {
             Devices.Add(device);
-            StatusDetail = $"{Devices.Count} device(s) found";
+            StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
         });
     }
     
     private void OnDeviceRemoved(object? sender, string deviceId)
     {
-        Application.Current.Dispatcher.Invoke(() =>
+        Application.Current.Dispatcher.InvokeAsync(() =>
         {
             for (int i = Devices.Count - 1; i >= 0; i--)
             {
@@ -78,13 +78,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
                     break;
                 }
             }
-            StatusDetail = $"{Devices.Count} device(s) found";
+            StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
         });
     }
     
     private void OnDeviceUpdated(object? sender, BluetoothDevice device)
     {
-        Application.Current.Dispatcher.Invoke(() =>
+        Application.Current.Dispatcher.InvokeAsync(() =>
         {
             for (int i = 0; i < Devices.Count; i++)
             {
@@ -99,21 +99,21 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     private void OnAudioConnectionStateChanged(object? sender, bool connected)
     {
-        Application.Current.Dispatcher.Invoke(() =>
+        Application.Current.Dispatcher.InvokeAsync(() =>
         {
             IsConnected = connected;
             IsConnecting = false;
             
             if (connected)
             {
-                Status = "Connected";
-                StatusDetail = $"Audio ready from {SelectedDevice?.Name}";
+                Status = LocalizationService.Instance.Get("Connected");
+                StatusDetail = string.Format(LocalizationService.Instance.Get("AudioReadyFrom"), SelectedDevice?.Name);
                 ErrorMessage = null;
             }
             else
             {
-                Status = "Idle";
-                StatusDetail = "Select a device to connect";
+                Status = LocalizationService.Instance.Get("Idle");
+                StatusDetail = LocalizationService.Instance.Get("SelectDevice");
 
                 // Reset streaming status for all devices when disconnected
                 for (int i = 0; i < Devices.Count; i++)
@@ -130,9 +130,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     private void OnStreamingStateChanged(object? sender, string state)
     {
-        Application.Current.Dispatcher.Invoke(() =>
+        Application.Current.Dispatcher.InvokeAsync(() =>
         {
-            Status = state;
+            Status = LocalizationService.Instance.Get(state); // Use localized status
             bool isStreaming = state == "Streaming";
 
             // Update the streaming status on the specific device
@@ -152,14 +152,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
             if (isStreaming)
             {
-                StatusDetail = $"Receiving audio from {SelectedDevice?.Name}";
+                StatusDetail = string.Format(LocalizationService.Instance.Get("ReceivingAudioFrom"), SelectedDevice?.Name);
             }
         });
     }
     
     private void OnAudioError(object? sender, string error)
     {
-        Application.Current.Dispatcher.Invoke(() =>
+        Application.Current.Dispatcher.InvokeAsync(() =>
         {
             ErrorMessage = error;
             IsConnecting = false;
@@ -172,8 +172,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (SelectedDevice == null) return;
         
         IsConnecting = true;
-        Status = "Connecting...";
-        StatusDetail = $"Opening connection to {SelectedDevice.Name}";
+        Status = LocalizationService.Instance.Get("Connecting");
+        StatusDetail = string.Format(LocalizationService.Instance.Get("OpeningConnectionTo"), SelectedDevice.Name);
         ErrorMessage = null;
         
         await _audioService.OpenConnectionAsync(SelectedDevice.Id);
@@ -191,7 +191,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         Devices.Clear();
         _bluetoothService.StopWatching();
         _bluetoothService.StartWatching();
-        StatusDetail = "Scanning for devices...";
+        StatusDetail = LocalizationService.Instance.Get("Scanning");
     }
     
     public void Dispose()

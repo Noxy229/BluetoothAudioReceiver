@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.Media.Audio;
 
 namespace BluetoothAudioReceiver.Services;
@@ -113,8 +114,9 @@ public class AudioService : IDisposable
             return false;
         }
         
-        // Give the audio subsystem a moment to initialize
-        await Task.Delay(200);
+        // Wait for the audio subsystem to initialize and reach the Opened state
+        // This is faster than a fixed delay if the state updates quickly
+        await WaitForStateAsync(_audioConnection, AudioPlaybackConnectionState.Opened, 500);
         
         // Force a state update to ensure we're in the right state
         IsStreaming = _audioConnection.State == AudioPlaybackConnectionState.Opened;
@@ -122,6 +124,45 @@ public class AudioService : IDisposable
         
         ConnectionStateChanged?.Invoke(this, true);
         return true;
+    }
+
+    /// <summary>
+    /// Waits for the audio connection to reach a specific state with a timeout.
+    /// </summary>
+    private async Task WaitForStateAsync(AudioPlaybackConnection connection, AudioPlaybackConnectionState targetState, int timeoutMs)
+    {
+        if (connection.State == targetState)
+        {
+            return;
+        }
+
+        var tcs = new TaskCompletionSource<bool>();
+
+        TypedEventHandler<AudioPlaybackConnection, object> handler = (sender, args) =>
+        {
+            if (sender.State == targetState)
+            {
+                tcs.TrySetResult(true);
+            }
+        };
+
+        connection.StateChanged += handler;
+
+        try
+        {
+            // Check again in case it changed before/while we subscribed
+            if (connection.State == targetState)
+            {
+                return;
+            }
+
+            var timeoutTask = Task.Delay(timeoutMs);
+            await Task.WhenAny(tcs.Task, timeoutTask);
+        }
+        finally
+        {
+            connection.StateChanged -= handler;
+        }
     }
     
     /// <summary>
