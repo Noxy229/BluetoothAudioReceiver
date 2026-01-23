@@ -1,18 +1,16 @@
 name: Auto Release on Bot Merge
 
 on:
-  push:
-    branches: [main]
   pull_request:
     types: [closed]
-    branches: [main]
+    branches: [master, main]
 
 permissions:
   contents: write
 
 jobs:
-  check-and-release:
-    # Nur ausführen wenn ein PR gemerged wurde (nicht nur geschlossen)
+  build-and-release:
+    # Nur ausführen wenn ein PR gemerged wurde UND vom Bot erstellt wurde
     if: github.event.pull_request.merged == true && github.event.pull_request.user.login == 'google-labs-jules[bot]'
     runs-on: windows-latest
 
@@ -24,10 +22,6 @@ jobs:
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: '8.0.x'
-
-    - name: Create Test Certificate
-      run: |
-        Write-Host "Using existing certificate from scripts/TestCert.pfx"
 
     - name: Build and Sign
       run: |
@@ -54,7 +48,6 @@ jobs:
           
           **PR:** #${{ github.event.pull_request.number }}
           **Titel:** ${{ github.event.pull_request.title }}
-          **Merged by:** ${{ github.event.pull_request.merged_by.login }}
         files: |
           bin/Release/net8.0-windows10.0.19041.0/publish/BluetoothAudioReceiver.exe
         draft: false
