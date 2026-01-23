@@ -74,7 +74,9 @@ public partial class MainViewModel : ObservableObject, IDisposable
             {
                 if (Devices[i].Id == deviceId)
                 {
-                    Devices.RemoveAt(i);
+                    Devices[i].Name = device.Name;
+                    Devices[i].IsConnected = device.IsConnected;
+                    Devices[i].IsAudioStreaming = device.IsAudioStreaming;
                     break;
                 }
             }
@@ -90,7 +92,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
             {
                 if (Devices[i].Id == device.Id)
                 {
-                    Devices[i] = device;
+                    Devices[i].IsConnected = device.IsConnected;
+                    Devices[i].IsAudioStreaming = device.IsAudioStreaming;
                     break;
                 }
             }
