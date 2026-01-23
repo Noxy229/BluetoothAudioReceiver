@@ -1,6 +1,6 @@
 param (
     [string]$CertPath = "$PSScriptRoot\TestCert.pfx",
-    [string]$CertPassword = "password"
+    [string]$CertPassword
 )
 
 $ErrorActionPreference = "Stop"
@@ -19,6 +19,14 @@ if (-not (Test-Path $exePath)) {
 
 # 2. Sign
 if (Test-Path $CertPath) {
+    if ([string]::IsNullOrEmpty($CertPassword)) {
+        if ($env:PFX_PASSWORD) {
+            $CertPassword = $env:PFX_PASSWORD
+        } else {
+            Write-Error "Certificate found at $CertPath but no password provided via -CertPassword or PFX_PASSWORD env var."
+        }
+    }
+
     Write-Host "Signing $exePath with $CertPath..."
     
     # Try using built-in Set-AuthenticodeSignature (works without signtool in many cases)
