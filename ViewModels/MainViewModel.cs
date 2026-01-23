@@ -59,7 +59,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     private void OnDeviceAdded(object? sender, BluetoothDevice device)
     {
-        Application.Current.Dispatcher.Invoke(() =>
+        Application.Current.Dispatcher.InvokeAsync(() =>
         {
             Devices.Add(device);
             StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
@@ -68,7 +68,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     private void OnDeviceRemoved(object? sender, string deviceId)
     {
-        Application.Current.Dispatcher.Invoke(() =>
+        Application.Current.Dispatcher.InvokeAsync(() =>
         {
             for (int i = Devices.Count - 1; i >= 0; i--)
             {
@@ -84,7 +84,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     private void OnDeviceUpdated(object? sender, BluetoothDevice device)
     {
-        Application.Current.Dispatcher.Invoke(() =>
+        Application.Current.Dispatcher.InvokeAsync(() =>
         {
             for (int i = 0; i < Devices.Count; i++)
             {
@@ -99,7 +99,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     private void OnAudioConnectionStateChanged(object? sender, bool connected)
     {
-        Application.Current.Dispatcher.Invoke(() =>
+        Application.Current.Dispatcher.InvokeAsync(() =>
         {
             IsConnected = connected;
             IsConnecting = false;
@@ -120,7 +120,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     private void OnStreamingStateChanged(object? sender, string state)
     {
-        Application.Current.Dispatcher.Invoke(() =>
+        Application.Current.Dispatcher.InvokeAsync(() =>
         {
             Status = LocalizationService.Instance.Get(state);
             if (state == "Streaming")
@@ -132,7 +132,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     private void OnAudioError(object? sender, string error)
     {
-        Application.Current.Dispatcher.Invoke(() =>
+        Application.Current.Dispatcher.InvokeAsync(() =>
         {
             ErrorMessage = error;
             IsConnecting = false;
