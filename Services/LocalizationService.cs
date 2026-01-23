@@ -14,6 +14,7 @@ public class LocalizationService : INotifyPropertyChanged
     public static LocalizationService Instance => _instance ??= new LocalizationService();
     
     private string _currentLanguage = "en";
+    private Dictionary<string, string> _cachedTranslation = Translations.TryGetValue("en", out var en) ? en : new();
     
     public event PropertyChangedEventHandler? PropertyChanged;
     
@@ -402,6 +403,16 @@ public class LocalizationService : INotifyPropertyChanged
             if (_currentLanguage != value && AvailableLanguages.ContainsKey(value))
             {
                 _currentLanguage = value;
+
+                if (Translations.TryGetValue(value, out var dict))
+                {
+                    _cachedTranslation = dict;
+                }
+                else
+                {
+                    _cachedTranslation = Translations.TryGetValue("en", out var en) ? en : new();
+                }
+
                 OnPropertyChanged();
                 // Notify that all indexed properties may have changed
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs("Item[]"));
@@ -413,15 +424,15 @@ public class LocalizationService : INotifyPropertyChanged
     {
         get
         {
-            // Try current language first
-            if (Translations.TryGetValue(_currentLanguage, out var langDict) && 
-                langDict.TryGetValue(key, out var value))
+            // Try cached translation (current language)
+            if (_cachedTranslation.TryGetValue(key, out var value))
             {
                 return value;
             }
             
-            // Fallback to English
-            if (Translations.TryGetValue("en", out var enDict) && 
+            // Fallback to English (only if current is not English)
+            if (_currentLanguage != "en" &&
+                Translations.TryGetValue("en", out var enDict) &&
                 enDict.TryGetValue(key, out var enValue))
             {
                 return enValue;
