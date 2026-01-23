@@ -33,14 +33,18 @@ public partial class App : Application
     {
         try
         {
-            string desktopPath = Environment.GetFolderPath(Environment.SpecialFolder.Desktop);
-            string logPath = Path.Combine(desktopPath, "crash_log.txt");
+            string logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BluetoothAudioReceiver", "logs");
+            if (!Directory.Exists(logDir))
+            {
+                Directory.CreateDirectory(logDir);
+            }
+            string logPath = Path.Combine(logDir, "crash_log.txt");
             string errorMessage = $"[{DateTime.Now}] CRASH REPORT:\n{ex.GetType()}: {ex.Message}\nStack Trace:\n{ex.StackTrace}\n\nInner Exception:\n{ex.InnerException?.Message}\n--------------------------------------------------\n";
             File.AppendAllText(logPath, errorMessage);
         }
         catch
         {
-            // Fallback if writing to desktop fails
+            // Fallback if writing fails
         }
     }
 }

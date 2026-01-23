@@ -25,10 +25,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private BluetoothDevice? _selectedDevice;
     
     [ObservableProperty]
-    private string _status = "Idle";
+    private string _status = LocalizationService.Instance.Get("Idle");
     
     [ObservableProperty]
-    private string _statusDetail = "Select a device to connect";
+    private string _statusDetail = LocalizationService.Instance.Get("SelectDevice");
     
     [ObservableProperty]
     private bool _isConnecting;
@@ -62,7 +62,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         Application.Current.Dispatcher.Invoke(() =>
         {
             Devices.Add(device);
-            StatusDetail = $"{Devices.Count} device(s) found";
+            StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
         });
     }
     
@@ -78,7 +78,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
                     break;
                 }
             }
-            StatusDetail = $"{Devices.Count} device(s) found";
+            StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
         });
     }
     
@@ -106,14 +106,14 @@ public partial class MainViewModel : ObservableObject, IDisposable
             
             if (connected)
             {
-                Status = "Connected";
-                StatusDetail = $"Audio ready from {SelectedDevice?.Name}";
+                Status = LocalizationService.Instance.Get("Connected");
+                StatusDetail = string.Format(LocalizationService.Instance.Get("AudioReadyFrom"), SelectedDevice?.Name);
                 ErrorMessage = null;
             }
             else
             {
-                Status = "Idle";
-                StatusDetail = "Select a device to connect";
+                Status = LocalizationService.Instance.Get("Idle");
+                StatusDetail = LocalizationService.Instance.Get("SelectDevice");
             }
         });
     }
@@ -122,10 +122,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         Application.Current.Dispatcher.Invoke(() =>
         {
-            Status = state;
+            Status = LocalizationService.Instance.Get(state);
             if (state == "Streaming")
             {
-                StatusDetail = $"Receiving audio from {SelectedDevice?.Name}";
+                StatusDetail = string.Format(LocalizationService.Instance.Get("ReceivingAudioFrom"), SelectedDevice?.Name);
             }
         });
     }
@@ -145,8 +145,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         if (SelectedDevice == null) return;
         
         IsConnecting = true;
-        Status = "Connecting...";
-        StatusDetail = $"Opening connection to {SelectedDevice.Name}";
+        Status = LocalizationService.Instance.Get("Connecting");
+        StatusDetail = string.Format(LocalizationService.Instance.Get("OpeningConnectionTo"), SelectedDevice.Name);
         ErrorMessage = null;
         
         await _audioService.OpenConnectionAsync(SelectedDevice.Id);
@@ -164,7 +164,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         Devices.Clear();
         _bluetoothService.StopWatching();
         _bluetoothService.StartWatching();
-        StatusDetail = "Scanning for devices...";
+        StatusDetail = LocalizationService.Instance.Get("Scanning");
     }
     
     public void Dispose()
