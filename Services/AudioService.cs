@@ -198,6 +198,24 @@ public class AudioService : IDisposable
     
     public void Dispose()
     {
-        _ = CloseConnectionAsync();
+        // Clean up synchronously to ensure resources are released before app exit
+        if (_audioConnection != null)
+        {
+            try
+            {
+                _audioConnection.StateChanged -= OnConnectionStateChanged;
+                _audioConnection.Dispose();
+            }
+            catch
+            {
+                // Ignore errors during disposal
+            }
+            finally
+            {
+                _audioConnection = null;
+            }
+        }
+        _currentDeviceId = null;
+        IsStreaming = false;
     }
 }
