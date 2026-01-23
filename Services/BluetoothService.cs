@@ -53,7 +53,16 @@ public class BluetoothService : IDisposable
         _deviceWatcher.Removed += OnDeviceRemoved;
         _deviceWatcher.EnumerationCompleted += OnEnumerationCompleted;
         
-        _deviceWatcher.Start();
+        try
+        {
+            _deviceWatcher.Start();
+        }
+        catch (Exception)
+        {
+            // If Bluetooth is not available or disabled, Start() might fail.
+            // Stop watching to clean up event handlers.
+            StopWatching();
+        }
     }
     
     /// <summary>
