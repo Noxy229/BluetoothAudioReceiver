@@ -229,6 +229,16 @@
                                                         <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
                                                         <Setter TargetName="border" Property="Background" Value="#0D0078D4"/>
                                                     </Trigger>
+                                                    <Trigger Property="IsKeyboardFocused" Value="True">
+                                                        <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                                    </Trigger>
+                                                    <MultiTrigger>
+                                                        <MultiTrigger.Conditions>
+                                                            <Condition Property="IsSelected" Value="True"/>
+                                                            <Condition Property="IsKeyboardFocused" Value="True"/>
+                                                        </MultiTrigger.Conditions>
+                                                        <Setter TargetName="border" Property="BorderBrush" Value="{StaticResource TextPrimaryBrush}"/>
+                                                    </MultiTrigger>
                                                     <MultiTrigger>
                                                         <MultiTrigger.Conditions>
                                                             <Condition Property="IsMouseOver" Value="True"/>

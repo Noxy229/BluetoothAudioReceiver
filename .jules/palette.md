@@ -5,3 +5,7 @@
 ## 2024-05-24 - Keyboard Focus in Custom Styles
 **Learning:** Completely replacing ControlTemplates for buttons (to achieve custom styling) removes default focus indicators (`FocusVisualStyle`), rendering the UI inaccessible to keyboard users unless explicitly re-added.
 **Action:** Always add `IsKeyboardFocused` triggers to custom ControlTemplates or define a custom `FocusVisualStyle` to ensure keyboard navigation is visible.
+
+## 2024-05-25 - Combined Selection and Focus States
+**Learning:** When styling list items, IsSelected and IsKeyboardFocused can occur simultaneously. A simple focus trigger might be overridden by the selection style or lack sufficient contrast against the selection background.
+**Action:** Use MultiTrigger to define a specific style for items that are both selected and focused (e.g., white border on blue background) to ensure the focus indicator is always visible.
