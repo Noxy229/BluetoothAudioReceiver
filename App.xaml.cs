@@ -39,7 +39,9 @@ public partial class App : Application
     {
         LogCrash(e.Exception);
         e.Handled = true; // Prevent immediate termination if possible to show dialog
-        MessageBox.Show($"Application Crash:\n{e.Exception.Message}\n\nSee crash_log.txt on Desktop for details.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+        string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BluetoothAudioReceiver", "logs", "crash_log.txt");
+        MessageBox.Show($"An unexpected error occurred. The application will close.\n\nPlease check the log file for details:\n{logPath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         Shutdown();
     }
 
@@ -61,6 +63,18 @@ public partial class App : Application
                 Directory.CreateDirectory(logDir);
             }
             string logPath = Path.Combine(logDir, "crash_log.txt");
+
+            // Log rotation: if file > 5MB, rotate to .bak
+            if (File.Exists(logPath) && new FileInfo(logPath).Length > 5 * 1024 * 1024)
+            {
+                string backupPath = Path.Combine(logDir, "crash_log.bak");
+                if (File.Exists(backupPath))
+                {
+                    File.Delete(backupPath);
+                }
+                File.Move(logPath, backupPath);
+            }
+
             string errorMessage = $"[{DateTime.Now}] CRASH REPORT:\n{ex.GetType()}: {ex.Message}\nStack Trace:\n{ex.StackTrace}\n\nInner Exception:\n{ex.InnerException?.Message}\n--------------------------------------------------\n";
             File.AppendAllText(logPath, errorMessage);
         }
