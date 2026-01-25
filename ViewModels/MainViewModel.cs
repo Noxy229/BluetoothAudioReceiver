@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using BluetoothAudioReceiver.Models;
@@ -17,6 +18,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
 {
     private readonly BluetoothService _bluetoothService;
     private readonly AudioService _audioService;
+    private readonly object _devicesLock = new();
     
     [ObservableProperty]
     private ObservableCollection<BluetoothDevice> _devices = new();
@@ -44,10 +46,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _bluetoothService = new BluetoothService();
         _audioService = new AudioService();
         
+        // Enable multi-threaded access to the collection
+        BindingOperations.EnableCollectionSynchronization(Devices, _devicesLock);
+
         // Wire up events (event-driven, no polling!)
         _bluetoothService.DeviceAdded += OnDeviceAdded;
         _bluetoothService.DeviceRemoved += OnDeviceRemoved;
-        _bluetoothService.DeviceUpdated += OnDeviceUpdated;
+        // DeviceUpdated is handled automatically via INotifyPropertyChanged on the shared BluetoothDevice objects
         
         _audioService.ConnectionStateChanged += OnAudioConnectionStateChanged;
         _audioService.StreamingStateChanged += OnStreamingStateChanged;
@@ -59,16 +64,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     private void OnDeviceAdded(object? sender, BluetoothDevice device)
     {
-        Application.Current.Dispatcher.InvokeAsync(() =>
+        lock (_devicesLock)
         {
             Devices.Add(device);
             StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
-        });
+        }
     }
     
     private void OnDeviceRemoved(object? sender, string deviceId)
     {
-        Application.Current.Dispatcher.InvokeAsync(() =>
+        lock (_devicesLock)
         {
             for (int i = Devices.Count - 1; i >= 0; i--)
             {
@@ -79,65 +84,43 @@ public partial class MainViewModel : ObservableObject, IDisposable
                 }
             }
             StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
-        });
-    }
-    
-    private void OnDeviceUpdated(object? sender, BluetoothDevice device)
-    {
-        Application.Current.Dispatcher.InvokeAsync(() =>
-        {
-            for (int i = 0; i < Devices.Count; i++)
-            {
-                if (Devices[i].Id == device.Id)
-                {
-                    Devices[i].IsConnected = device.IsConnected;
-                    Devices[i].IsAudioStreaming = device.IsAudioStreaming;
-                    break;
-                }
-            }
-        });
+        }
     }
     
     private void OnAudioConnectionStateChanged(object? sender, bool connected)
     {
-        Application.Current.Dispatcher.InvokeAsync(() =>
+        // WPF automatically marshals PropertyChanged events for scalar properties to the UI thread
+        IsConnected = connected;
+        IsConnecting = false;
+
+        if (connected)
         {
-            IsConnected = connected;
-            IsConnecting = false;
-            
-            if (connected)
-            {
-                Status = LocalizationService.Instance.Get("Connected");
-                StatusDetail = string.Format(LocalizationService.Instance.Get("AudioReadyFrom"), SelectedDevice?.Name);
-                ErrorMessage = null;
-            }
-            else
-            {
-                Status = LocalizationService.Instance.Get("Idle");
-                StatusDetail = LocalizationService.Instance.Get("SelectDevice");
-            }
-        });
+            Status = LocalizationService.Instance.Get("Connected");
+            StatusDetail = string.Format(LocalizationService.Instance.Get("AudioReadyFrom"), SelectedDevice?.Name);
+            ErrorMessage = null;
+        }
+        else
+        {
+            Status = LocalizationService.Instance.Get("Idle");
+            StatusDetail = LocalizationService.Instance.Get("SelectDevice");
+        }
     }
     
     private void OnStreamingStateChanged(object? sender, string state)
     {
-        Application.Current.Dispatcher.InvokeAsync(() =>
+        // WPF automatically marshals PropertyChanged events for scalar properties to the UI thread
+        Status = LocalizationService.Instance.Get(state);
+        if (state == "Streaming")
         {
-            Status = LocalizationService.Instance.Get(state);
-            if (state == "Streaming")
-            {
-                StatusDetail = string.Format(LocalizationService.Instance.Get("ReceivingAudioFrom"), SelectedDevice?.Name);
-            }
-        });
+            StatusDetail = string.Format(LocalizationService.Instance.Get("ReceivingAudioFrom"), SelectedDevice?.Name);
+        }
     }
     
     private void OnAudioError(object? sender, string error)
     {
-        Application.Current.Dispatcher.InvokeAsync(() =>
-        {
-            ErrorMessage = error;
-            IsConnecting = false;
-        });
+        // WPF automatically marshals PropertyChanged events for scalar properties to the UI thread
+        ErrorMessage = error;
+        IsConnecting = false;
     }
     
     [RelayCommand]
@@ -162,7 +145,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private void RefreshDevices()
     {
-        Devices.Clear();
+        lock (_devicesLock)
+        {
+            Devices.Clear();
+        }
         _bluetoothService.StopWatching();
         _bluetoothService.StartWatching();
         StatusDetail = LocalizationService.Instance.Get("Scanning");
@@ -172,7 +158,6 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         _bluetoothService.DeviceAdded -= OnDeviceAdded;
         _bluetoothService.DeviceRemoved -= OnDeviceRemoved;
-        _bluetoothService.DeviceUpdated -= OnDeviceUpdated;
         
         _audioService.ConnectionStateChanged -= OnAudioConnectionStateChanged;
         _audioService.StreamingStateChanged -= OnStreamingStateChanged;
