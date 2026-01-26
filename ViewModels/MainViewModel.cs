@@ -19,6 +19,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private readonly BluetoothService _bluetoothService;
     private readonly AudioService _audioService;
     private readonly object _devicesLock = new();
+    private bool _isEnumerating = true;
     
     [ObservableProperty]
     private ObservableCollection<BluetoothDevice> _devices = new();
@@ -52,6 +53,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         // Wire up events (event-driven, no polling!)
         _bluetoothService.DeviceAdded += OnDeviceAdded;
         _bluetoothService.DeviceRemoved += OnDeviceRemoved;
+        _bluetoothService.EnumerationCompleted += OnEnumerationCompleted;
         // DeviceUpdated is handled automatically via INotifyPropertyChanged on the shared BluetoothDevice objects
         
         _audioService.ConnectionStateChanged += OnAudioConnectionStateChanged;
@@ -67,6 +69,18 @@ public partial class MainViewModel : ObservableObject, IDisposable
         lock (_devicesLock)
         {
             Devices.Add(device);
+            if (!_isEnumerating)
+            {
+                StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
+            }
+        }
+    }
+
+    private void OnEnumerationCompleted(object? sender, EventArgs e)
+    {
+        lock (_devicesLock)
+        {
+            _isEnumerating = false;
             StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
         }
     }
@@ -150,14 +164,17 @@ public partial class MainViewModel : ObservableObject, IDisposable
             Devices.Clear();
         }
         _bluetoothService.StopWatching();
-        _bluetoothService.StartWatching();
+
+        _isEnumerating = true;
         StatusDetail = LocalizationService.Instance.Get("Scanning");
+        _bluetoothService.StartWatching();
     }
     
     public void Dispose()
     {
         _bluetoothService.DeviceAdded -= OnDeviceAdded;
         _bluetoothService.DeviceRemoved -= OnDeviceRemoved;
+        _bluetoothService.EnumerationCompleted -= OnEnumerationCompleted;
         
         _audioService.ConnectionStateChanged -= OnAudioConnectionStateChanged;
         _audioService.StreamingStateChanged -= OnStreamingStateChanged;

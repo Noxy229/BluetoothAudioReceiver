@@ -20,6 +20,7 @@ public class BluetoothService : IDisposable
     public event EventHandler<BluetoothDevice>? DeviceAdded;
     public event EventHandler<string>? DeviceRemoved;
     public event EventHandler<BluetoothDevice>? DeviceUpdated;
+    public event EventHandler? EnumerationCompleted;
     
     /// <summary>
     /// Gets all currently known paired Bluetooth devices.
@@ -136,6 +137,7 @@ public class BluetoothService : IDisposable
     private void OnEnumerationCompleted(DeviceWatcher sender, object args)
     {
         // Enumeration complete - watcher will continue to monitor for changes
+        EnumerationCompleted?.Invoke(this, EventArgs.Empty);
     }
     
     public void Dispose()
