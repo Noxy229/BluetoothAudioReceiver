@@ -19,6 +19,7 @@ public class LocalizationService : INotifyPropertyChanged
 
     // Cache for loaded translations to avoid re-allocating
     private readonly Dictionary<string, Dictionary<string, string>> _loadedTranslations = new();
+    private readonly object _lock = new();
     
     public event PropertyChangedEventHandler? PropertyChanged;
     
@@ -50,17 +51,20 @@ public class LocalizationService : INotifyPropertyChanged
     // Helper to get translation dictionary (cached or loaded on demand)
     private Dictionary<string, string>? GetTranslation(string languageCode)
     {
-        if (_loadedTranslations.TryGetValue(languageCode, out var dict))
+        lock (_lock)
         {
+            if (_loadedTranslations.TryGetValue(languageCode, out var dict))
+            {
+                return dict;
+            }
+
+            dict = LoadTranslation(languageCode);
+            if (dict != null)
+            {
+                _loadedTranslations[languageCode] = dict;
+            }
             return dict;
         }
-
-        dict = LoadTranslation(languageCode);
-        if (dict != null)
-        {
-            _loadedTranslations[languageCode] = dict;
-        }
-        return dict;
     }
 
     // Loads translation data on demand
