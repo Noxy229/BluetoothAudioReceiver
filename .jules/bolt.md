@@ -9,3 +9,7 @@
 ## 2026-01-25 - Redundant Property Updates in MVVM
 **Learning:** In a shared-object architecture (Service passes reference to ViewModel), explicit event handlers in the ViewModel that copy properties from the Service object to the ViewModel object are O(N) redundant operations if the object implements `INotifyPropertyChanged`.
 **Action:** Trust data binding. If the Service updates the object, the UI receives the `PropertyChanged` event directly. Remove the redundant ViewModel event handler.
+
+## 2026-01-25 - DeviceWatcher Enumeration Flood
+**Learning:** `DeviceWatcher` fires `Added` events rapidly for cached devices on startup. Updating UI status strings for every single event causes visible jitter/overhead.
+**Action:** Use `EnumerationCompleted` event to batch the status update until the initial flood is over.
