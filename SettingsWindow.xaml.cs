@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
 using BluetoothAudioReceiver.Models;
@@ -66,6 +67,10 @@ public partial class SettingsWindow : Window
         BehaviorHeader.Text = _loc["Behavior"];
         LanguageHeader.Text = _loc["Language"];
         
+        // Accessibility names for inputs
+        AutomationProperties.SetName(VolumeSlider, _loc["Volume"]);
+        AutomationProperties.SetName(LanguageComboBox, _loc["Language"]);
+
         // Checkboxes
         AutoStartCheckBox.Content = _loc["StartWithWindows"];
         StartMinimizedCheckBox.Content = _loc["StartMinimized"];
