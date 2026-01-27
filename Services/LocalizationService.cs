@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -11,22 +12,25 @@ namespace BluetoothAudioReceiver.Services;
 /// </summary>
 public class LocalizationService : INotifyPropertyChanged
 {
-    private static LocalizationService? _instance;
-    public static LocalizationService Instance => _instance ??= new LocalizationService();
+    // Thread-safe, lock-free singleton access
+    public static readonly LocalizationService Instance = new();
     
     private string _currentLanguage = "en";
-    private Dictionary<string, string> _cachedTranslation;
+    private IDictionary<string, string> _cachedTranslation;
+    private readonly IDictionary<string, string>? _fallbackTranslation;
 
-    // Cache for loaded translations to avoid re-allocating
-    private readonly Dictionary<string, Dictionary<string, string>> _loadedTranslations = new();
+    // Cache for loaded translations to avoid re-allocating. Uses FrozenDictionary for fast lookups.
+    private readonly Dictionary<string, IDictionary<string, string>> _loadedTranslations = new();
     private readonly object _lock = new();
     
     public event PropertyChangedEventHandler? PropertyChanged;
     
     public LocalizationService()
     {
-        // Initialize with default language (English)
-        _cachedTranslation = GetTranslation("en") ?? new Dictionary<string, string>();
+        // Initialize with default language (English) and cache it for fallback to avoid locks
+        var enDict = GetTranslation("en");
+        _fallbackTranslation = enDict;
+        _cachedTranslation = enDict ?? new Dictionary<string, string>();
     }
 
     public static readonly Dictionary<string, string> AvailableLanguages = new()
@@ -49,7 +53,7 @@ public class LocalizationService : INotifyPropertyChanged
     };
     
     // Helper to get translation dictionary (cached or loaded on demand)
-    private Dictionary<string, string>? GetTranslation(string languageCode)
+    private IDictionary<string, string>? GetTranslation(string languageCode)
     {
         lock (_lock)
         {
@@ -58,12 +62,15 @@ public class LocalizationService : INotifyPropertyChanged
                 return dict;
             }
 
-            dict = LoadTranslation(languageCode);
-            if (dict != null)
+            var loaded = LoadTranslation(languageCode);
+            if (loaded != null)
             {
-                _loadedTranslations[languageCode] = dict;
+                // Convert to FrozenDictionary for O(1) optimized read performance
+                var frozen = loaded.ToFrozenDictionary();
+                _loadedTranslations[languageCode] = frozen;
+                return frozen;
             }
-            return dict;
+            return null;
         }
     }
 
@@ -468,11 +475,10 @@ public class LocalizationService : INotifyPropertyChanged
                 return value;
             }
             
-            // Fallback to English (only if current is not English)
-            if (_currentLanguage != "en")
+            // Fallback to English (only if current is not English) - use cached reference to avoid lock
+            if (_currentLanguage != "en" && _fallbackTranslation != null)
             {
-                var enDict = GetTranslation("en");
-                if (enDict != null && enDict.TryGetValue(key, out var enValue))
+                if (_fallbackTranslation.TryGetValue(key, out var enValue))
                 {
                     return enValue;
                 }
