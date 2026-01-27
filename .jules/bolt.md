@@ -13,3 +13,7 @@
 ## 2026-01-25 - DeviceWatcher Enumeration Flood
 **Learning:** `DeviceWatcher` fires `Added` events rapidly for cached devices on startup. Updating UI status strings for every single event causes visible jitter/overhead.
 **Action:** Use `EnumerationCompleted` event to batch the status update until the initial flood is over.
+
+## 2026-01-25 - FrozenDictionary for Localization
+**Learning:** Frequent dictionary lookups with string keys can be optimized using `FrozenDictionary` (NET 8) for immutable data. Also, avoiding locks on fallback paths (e.g., checking English if current language misses a key) by caching the fallback dictionary reference improves concurrency.
+**Action:** Convert static/cached dictionaries to `FrozenDictionary` where possible. Cache references to frequently accessed fallback resources to avoid re-entering locks.
