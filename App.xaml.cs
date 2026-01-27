@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Windows;
+using BluetoothAudioReceiver.Services;
 
 namespace BluetoothAudioReceiver;
 
@@ -37,11 +38,10 @@ public partial class App : Application
 
     private void App_DispatcherUnhandledException(object sender, System.Windows.Threading.DispatcherUnhandledExceptionEventArgs e)
     {
-        LogCrash(e.Exception);
+        LogService.Log("CRASH REPORT (Dispatcher)", e.Exception);
         e.Handled = true; // Prevent immediate termination if possible to show dialog
 
-        string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BluetoothAudioReceiver", "logs", "crash_log.txt");
-        MessageBox.Show($"An unexpected error occurred. The application will close.\n\nPlease check the log file for details:\n{logPath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        MessageBox.Show($"An unexpected error occurred. The application will close.\n\nPlease check the log file for details:\n{LogService.LogPath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         Shutdown();
     }
 
@@ -49,38 +49,7 @@ public partial class App : Application
     {
         if (e.ExceptionObject is Exception ex)
         {
-            LogCrash(ex);
-        }
-    }
-
-    private void LogCrash(Exception ex)
-    {
-        try
-        {
-            string logDir = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BluetoothAudioReceiver", "logs");
-            if (!Directory.Exists(logDir))
-            {
-                Directory.CreateDirectory(logDir);
-            }
-            string logPath = Path.Combine(logDir, "crash_log.txt");
-
-            // Log rotation: if file > 5MB, rotate to .bak
-            if (File.Exists(logPath) && new FileInfo(logPath).Length > 5 * 1024 * 1024)
-            {
-                string backupPath = Path.Combine(logDir, "crash_log.bak");
-                if (File.Exists(backupPath))
-                {
-                    File.Delete(backupPath);
-                }
-                File.Move(logPath, backupPath);
-            }
-
-            string errorMessage = $"[{DateTime.Now}] CRASH REPORT:\n{ex.GetType()}: {ex.Message}\nStack Trace:\n{ex.StackTrace}\n\nInner Exception:\n{ex.InnerException?.Message}\n--------------------------------------------------\n";
-            File.AppendAllText(logPath, errorMessage);
-        }
-        catch
-        {
-            // Fallback if writing fails
+            LogService.Log("CRASH REPORT (Domain)", ex);
         }
     }
 }
