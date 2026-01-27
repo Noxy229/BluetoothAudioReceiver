@@ -55,19 +55,21 @@ public class AudioService : IDisposable
                 {
                     if (attempt == MaxRetries)
                     {
-                        ErrorOccurred?.Invoke(this, $"Error opening connection: {ex.Message}");
+                        LogService.Log("Error opening connection (Retry loop)", ex);
+                        ErrorOccurred?.Invoke(this, LocalizationService.Instance["ConnectionFailed"]);
                         return false;
                     }
                     await Task.Delay(RetryDelayMs);
                 }
             }
             
-            ErrorOccurred?.Invoke(this, "Could not establish connection after multiple attempts.");
+            ErrorOccurred?.Invoke(this, LocalizationService.Instance["ConnectionFailed"]);
             return false;
         }
         catch (Exception ex)
         {
-            ErrorOccurred?.Invoke(this, $"Error opening connection: {ex.Message}");
+            LogService.Log("Error opening connection (General)", ex);
+            ErrorOccurred?.Invoke(this, LocalizationService.Instance["ConnectionFailed"]);
             return false;
         }
     }
@@ -81,7 +83,9 @@ public class AudioService : IDisposable
         {
             if (attempt == MaxRetries)
             {
-                ErrorOccurred?.Invoke(this, "Could not create audio connection. Device may not support A2DP.");
+                // Note: Not passing exception as none is available here, but logging the event.
+                LogService.Log($"Could not create audio connection for device {deviceId}. Device may not support A2DP.");
+                ErrorOccurred?.Invoke(this, LocalizationService.Instance["ConnectionFailed"]);
             }
             return false;
         }
@@ -104,7 +108,8 @@ public class AudioService : IDisposable
             
             if (attempt == MaxRetries)
             {
-                ErrorOccurred?.Invoke(this, $"Failed to open audio connection: {result.Status}");
+                LogService.Log($"Failed to open audio connection: {result.Status}", result.ExtendedError);
+                ErrorOccurred?.Invoke(this, LocalizationService.Instance["ConnectionFailed"]);
             }
             
             // Clean up failed connection

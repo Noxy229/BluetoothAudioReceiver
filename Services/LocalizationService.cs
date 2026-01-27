@@ -127,7 +127,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Requirements"] = "• Windows 10 Version 2004 (May 2020 Update) or newer\n• Windows 11 (all versions)\n• Bluetooth adapter with A2DP support\n• Paired Bluetooth device (phone, tablet, etc.)",
                 ["Info"] = "INFO",
                 ["Version"] = "Version:",
-                ["DevelopedWith"] = "Developed with .NET 8 and WPF"
+                ["DevelopedWith"] = "Developed with .NET 8 and WPF",
+                ["ConnectionFailed"] = "Connection failed. Please check the log file for details."
             },
             "de" => new Dictionary<string, string>
             {
@@ -184,7 +185,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Requirements"] = "• Windows 10 Version 2004 (Mai 2020 Update) oder neuer\n• Windows 11 (alle Versionen)\n• Bluetooth-Adapter mit A2DP Unterstützung\n• Gekoppeltes Bluetooth-Gerät (Handy, Tablet, etc.)",
                 ["Info"] = "INFO",
                 ["Version"] = "Version:",
-                ["DevelopedWith"] = "Entwickelt mit .NET 8 und WPF"
+                ["DevelopedWith"] = "Entwickelt mit .NET 8 und WPF",
+                ["ConnectionFailed"] = "Verbindung fehlgeschlagen. Bitte überprüfen Sie die Protokolldatei."
             },
             "es" => new Dictionary<string, string>
             {
@@ -217,7 +219,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Minimized"] = "Minimizado",
                 ["AppRunningInTray"] = "La aplicación se ejecuta en la bandeja del sistema.",
                 ["AudioConnectionTo"] = "Conexión de audio a",
-                ["Established"] = "establecida."
+                ["Established"] = "establecida.",
+                ["ConnectionFailed"] = "Conexión fallida. Por favor revise el archivo de registro."
             },
             "fr" => new Dictionary<string, string>
             {
