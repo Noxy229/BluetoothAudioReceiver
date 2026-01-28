@@ -1,6 +1,7 @@
 <Window x:Class="BluetoothAudioReceiver.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:services="clr-namespace:BluetoothAudioReceiver.Services"
         Title="Bluetooth Audio Receiver" 
         Height="520" Width="400"
         MinHeight="450" MinWidth="360"
@@ -256,13 +257,21 @@
                         
                         <!-- Empty State -->
                         <TextBlock Grid.Row="1"
-                                   Text="Keine Geräte gefunden.&#x0a;Kopple dein Handy in den Windows-Einstellungen."
                                    TextAlignment="Center"
                                    FontSize="12"
                                    Foreground="{StaticResource TextSecondaryBrush}"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Center"
-                                   LineHeight="18">
+                                   LineHeight="20">
+                            <TextBlock.Inlines>
+                                <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[NoDevicesTitle], Mode=OneWay}"/>
+                                <LineBreak/>
+                                <Hyperlink Command="{Binding OpenBluetoothSettingsCommand}"
+                                           Foreground="{StaticResource PrimaryBrush}"
+                                           TextDecorations="None">
+                                    <Run Text="{Binding Source={x:Static services:LocalizationService.Instance}, Path=[OpenWindowsSettings], Mode=OneWay}"/>
+                                </Hyperlink>
+                            </TextBlock.Inlines>
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Visibility" Value="Collapsed"/>
