@@ -14,6 +14,8 @@ public class AppSettings
         "BluetoothAudioReceiver",
         "settings.json");
     
+    private const int MaxSettingsFileSize = 1024 * 1024; // 1MB limit to prevent DoS
+
     /// <summary>
     /// Volume level (0-100).
     /// </summary>
@@ -68,6 +70,12 @@ public class AppSettings
         {
             if (File.Exists(SettingsPath))
             {
+                // Enforce size limit before reading to prevent memory exhaustion (DoS)
+                if (new FileInfo(SettingsPath).Length > MaxSettingsFileSize)
+                {
+                    return new AppSettings();
+                }
+
                 var json = File.ReadAllText(SettingsPath);
                 return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
             }
