@@ -1,5 +1,6 @@
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
@@ -168,6 +169,27 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _isEnumerating = true;
         StatusDetail = LocalizationService.Instance.Get("Scanning");
         _bluetoothService.StartWatching();
+    }
+
+    [RelayCommand]
+    private void OpenBluetoothSettings()
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo("ms-settings:bluetooth") { UseShellExecute = true });
+        }
+        catch (Exception ex)
+        {
+            // Fallback: try opening generic settings if bluetooth specific fails
+             try
+             {
+                 Process.Start(new ProcessStartInfo("ms-settings:") { UseShellExecute = true });
+             }
+             catch
+             {
+                 // Ignore if both fail
+             }
+        }
     }
     
     public void Dispose()
