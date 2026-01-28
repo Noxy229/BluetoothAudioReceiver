@@ -7,3 +7,8 @@
 **Vulnerability:** The application was displaying raw stack traces in the crash dialog (Information Disclosure) and appending to the log file indefinitely (Potential Resource Exhaustion/DoS).
 **Learning:** Default global exception handlers often expose too much internal information to users. Unbounded log files can consume all available disk space if a crash loop occurs.
 **Prevention:** Implement log rotation (e.g., max 5MB, keep 1 backup) and display sanitized, generic error messages to the user while pointing them to the secure log file location.
+
+## 2024-10-28 - Unbounded Configuration File Read
+**Vulnerability:** The application was reading the entire content of `settings.json` into memory without checking its size. A malicious or corrupted large file could cause an `OutOfMemoryException` and crash the application (DoS).
+**Learning:** Even trusted local files in user-writable directories should be treated as potentially hostile inputs. `File.ReadAllText` is dangerous without size limits.
+**Prevention:** Enforce a reasonable file size limit (e.g., 1MB for JSON config) before reading. Return default values or handle the error gracefully if the limit is exceeded.
