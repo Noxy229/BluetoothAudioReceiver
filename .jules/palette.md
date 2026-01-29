@@ -13,3 +13,7 @@
 ## 2024-05-26 - Localized Accessibility Properties
 **Learning:** Programmatic localization (replacing text in code-behind) often misses accessibility properties. Updating `TextBlock.Text` changes the visual label, but `AutomationProperties.Name` on associated inputs remains static or empty unless explicitly updated.
 **Action:** When implementing localization in code-behind, always verify and update `AutomationProperties.Name` for inputs that rely on those labels.
+
+## 2024-05-27 - Actionable Empty States
+**Learning:** Empty states that require user action outside the application (e.g., pairing a Bluetooth device in system settings) are friction points. Static text telling the user what to do is good, but providing a direct link (e.g., `ms-settings:`) is better.
+**Action:** Identify "dead end" empty states and add deep links or shortcuts to the relevant system settings or documentation to guide the user back to the happy path.
