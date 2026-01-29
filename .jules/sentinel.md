@@ -7,3 +7,8 @@
 **Vulnerability:** The application was displaying raw stack traces in the crash dialog (Information Disclosure) and appending to the log file indefinitely (Potential Resource Exhaustion/DoS).
 **Learning:** Default global exception handlers often expose too much internal information to users. Unbounded log files can consume all available disk space if a crash loop occurs.
 **Prevention:** Implement log rotation (e.g., max 5MB, keep 1 backup) and display sanitized, generic error messages to the user while pointing them to the secure log file location.
+
+## 2026-01-29 - Untrusted Hardware Inputs
+**Vulnerability:** Bluetooth device names were displayed directly from the `DeviceWatcher` API without validation. Malicious devices could broadcast names with control characters (log spoofing) or excessive length (UI DoS/layout breaking).
+**Learning:** Even "trusted" hardware APIs return data that originates from untrusted external sources (the airwaves). Desktop apps are not immune to injection attacks via these channels.
+**Prevention:** Sanitize all external strings. Remove control characters (ASCII 0-31), trim whitespace, and enforce reasonable length limits before passing data to the UI or logs.
