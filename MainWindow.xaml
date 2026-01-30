@@ -308,9 +308,17 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <Button Content="Verbinden" 
-                            Command="{Binding OpenConnectionCommand}"
-                            Style="{StaticResource PrimaryButtonStyle}">
+                    <Button Command="{Binding OpenConnectionCommand}">
+                        <Button.Style>
+                            <Style TargetType="Button" BasedOn="{StaticResource PrimaryButtonStyle}">
+                                <Setter Property="Content" Value="Verbinden"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsConnecting}" Value="True">
+                                        <Setter Property="Content" Value="Verbinden..."/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
                         <Button.IsEnabled>
                             <MultiBinding>
                                 <MultiBinding.Converter>
