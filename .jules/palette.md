@@ -13,3 +13,7 @@
 ## 2024-05-26 - Localized Accessibility Properties
 **Learning:** Programmatic localization (replacing text in code-behind) often misses accessibility properties. Updating `TextBlock.Text` changes the visual label, but `AutomationProperties.Name` on associated inputs remains static or empty unless explicitly updated.
 **Action:** When implementing localization in code-behind, always verify and update `AutomationProperties.Name` for inputs that rely on those labels.
+
+## 2026-01-30 - XAML Property Precedence Blocking Triggers
+**Learning:** Setting a local property value on a XAML element (e.g., `Content="Connect"`) overrides any Style Triggers attempting to change that same property. This often leads to "broken" triggers that seem correct but fail to update the UI.
+**Action:** Move the default value into the Style's `Setter` (e.g., `<Setter Property="Content" Value="Connect"/>`) to allow Triggers to override it dynamically.
