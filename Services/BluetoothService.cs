@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Windows.Devices.Enumeration;
 using Windows.Media.Audio;
 using BluetoothAudioReceiver.Models;
@@ -92,7 +93,7 @@ public class BluetoothService : IDisposable
         var btDevice = new BluetoothDevice
         {
             Id = device.Id,
-            Name = string.IsNullOrEmpty(device.Name) ? LocalizationService.Instance["UnknownDevice"] : device.Name,
+            Name = SanitizeDeviceName(device.Name),
             IsConnected = device.Properties.TryGetValue("System.Devices.Aep.IsConnected", out var connected) 
                           && connected is bool isConnected && isConnected
         };
@@ -138,6 +139,25 @@ public class BluetoothService : IDisposable
     {
         // Enumeration complete - watcher will continue to monitor for changes
         EnumerationCompleted?.Invoke(this, EventArgs.Empty);
+    }
+
+    private string SanitizeDeviceName(string? name)
+    {
+        if (string.IsNullOrEmpty(name)) return LocalizationService.Instance["UnknownDevice"];
+
+        // Remove control characters
+        var sanitized = new string(name.Where(c => !char.IsControl(c)).ToArray());
+
+        // Trim
+        sanitized = sanitized.Trim();
+
+        // Truncate to 100 chars
+        if (sanitized.Length > 100)
+        {
+            sanitized = sanitized.Substring(0, 100);
+        }
+
+        return string.IsNullOrEmpty(sanitized) ? LocalizationService.Instance["UnknownDevice"] : sanitized;
     }
     
     public void Dispose()
