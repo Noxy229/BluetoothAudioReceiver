@@ -7,3 +7,8 @@
 **Vulnerability:** The application was displaying raw stack traces in the crash dialog (Information Disclosure) and appending to the log file indefinitely (Potential Resource Exhaustion/DoS).
 **Learning:** Default global exception handlers often expose too much internal information to users. Unbounded log files can consume all available disk space if a crash loop occurs.
 **Prevention:** Implement log rotation (e.g., max 5MB, keep 1 backup) and display sanitized, generic error messages to the user while pointing them to the secure log file location.
+
+## 2026-01-30 - Untrusted Device Name Sanitization
+**Vulnerability:** Bluetooth device names were being accepted raw from the OS API. Malicious devices could advertise names with control characters, excessive length, or spoofed content, potentially causing UI corruption, DoS, or log injection.
+**Learning:** Never trust external hardware inputs, even if they come through system APIs like `DeviceInformation`. Treating hardware descriptors as user input is a necessary defense-in-depth practice.
+**Prevention:** Implemented a sanitization layer that removes control characters, trims whitespace, and enforces a strict 100-character limit before the data enters the application domain.
