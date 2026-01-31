@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Diagnostics;
 using System.Windows.Data;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -42,6 +43,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string? _errorMessage;
     
+    public LocalizationService Localization => LocalizationService.Instance;
+
     public MainViewModel()
     {
         _bluetoothService = new BluetoothService();
@@ -170,6 +173,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
         _bluetoothService.StartWatching();
     }
     
+    [RelayCommand]
+    private void OpenBluetoothSettings()
+    {
+        Process.Start(new ProcessStartInfo("ms-settings:bluetooth") { UseShellExecute = true });
+    }
+
     public void Dispose()
     {
         _bluetoothService.DeviceAdded -= OnDeviceAdded;

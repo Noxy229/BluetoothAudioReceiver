@@ -127,7 +127,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Requirements"] = "• Windows 10 Version 2004 (May 2020 Update) or newer\n• Windows 11 (all versions)\n• Bluetooth adapter with A2DP support\n• Paired Bluetooth device (phone, tablet, etc.)",
                 ["Info"] = "INFO",
                 ["Version"] = "Version:",
-                ["DevelopedWith"] = "Developed with .NET 8 and WPF"
+                ["DevelopedWith"] = "Developed with .NET 8 and WPF",
+                ["OpenBluetoothSettings"] = "Open Bluetooth Settings"
             },
             "de" => new Dictionary<string, string>
             {
@@ -169,6 +170,7 @@ public class LocalizationService : INotifyPropertyChanged
                 ["AppRunningInTray"] = "Die App läuft weiter im System Tray.",
                 ["AudioConnectionTo"] = "Audio-Verbindung zu",
                 ["Established"] = "hergestellt.",
+                ["OpenBluetoothSettings"] = "Bluetooth-Einstellungen öffnen",
                 ["QuickStart"] = "SCHNELLSTART",
                 ["QuickStartSteps"] = "1. Handy in Windows Bluetooth-Einstellungen koppeln\n2. App starten und Gerät aus der Liste wählen\n3. \"Verbinden\" klicken\n4. Audio auf dem Handy abspielen",
                 ["KnownIssues"] = "⚠️ BEKANNTE PROBLEME",
@@ -217,7 +219,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Minimized"] = "Minimizado",
                 ["AppRunningInTray"] = "La aplicación se ejecuta en la bandeja del sistema.",
                 ["AudioConnectionTo"] = "Conexión de audio a",
-                ["Established"] = "establecida."
+                ["Established"] = "establecida.",
+                ["OpenBluetoothSettings"] = "Abrir configuración de Bluetooth"
             },
             "fr" => new Dictionary<string, string>
             {
@@ -246,7 +249,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["ShowNotifications"] = "Afficher les notifications",
                 ["Language"] = "LANGUE",
                 ["Save"] = "Enregistrer",
-                ["Cancel"] = "Annuler"
+                ["Cancel"] = "Annuler",
+                ["OpenBluetoothSettings"] = "Ouvrir les paramètres Bluetooth"
             },
             "it" => new Dictionary<string, string>
             {
@@ -263,7 +267,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Volume"] = "VOLUME",
                 ["Language"] = "LINGUA",
                 ["Save"] = "Salva",
-                ["Cancel"] = "Annulla"
+                ["Cancel"] = "Annulla",
+                ["OpenBluetoothSettings"] = "Apri impostazioni Bluetooth"
             },
             "pt" => new Dictionary<string, string>
             {
@@ -280,7 +285,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Volume"] = "VOLUME",
                 ["Language"] = "IDIOMA",
                 ["Save"] = "Salvar",
-                ["Cancel"] = "Cancelar"
+                ["Cancel"] = "Cancelar",
+                ["OpenBluetoothSettings"] = "Abrir configurações de Bluetooth"
             },
             "nl" => new Dictionary<string, string>
             {
@@ -296,7 +302,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Volume"] = "VOLUME",
                 ["Language"] = "TAAL",
                 ["Save"] = "Opslaan",
-                ["Cancel"] = "Annuleren"
+                ["Cancel"] = "Annuleren",
+                ["OpenBluetoothSettings"] = "Bluetooth-instellingen openen"
             },
             "pl" => new Dictionary<string, string>
             {
@@ -312,7 +319,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Volume"] = "GŁOŚNOŚĆ",
                 ["Language"] = "JĘZYK",
                 ["Save"] = "Zapisz",
-                ["Cancel"] = "Anuluj"
+                ["Cancel"] = "Anuluj",
+                ["OpenBluetoothSettings"] = "Otwórz ustawienia Bluetooth"
             },
             "ru" => new Dictionary<string, string>
             {
@@ -328,7 +336,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Volume"] = "ГРОМКОСТЬ",
                 ["Language"] = "ЯЗЫК",
                 ["Save"] = "Сохранить",
-                ["Cancel"] = "Отмена"
+                ["Cancel"] = "Отмена",
+                ["OpenBluetoothSettings"] = "Открыть настройки Bluetooth"
             },
             "uk" => new Dictionary<string, string>
             {
@@ -344,7 +353,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Volume"] = "ГУЧНІСТЬ",
                 ["Language"] = "МОВА",
                 ["Save"] = "Зберегти",
-                ["Cancel"] = "Скасувати"
+                ["Cancel"] = "Скасувати",
+                ["OpenBluetoothSettings"] = "Відкрити налаштування Bluetooth"
             },
             "tr" => new Dictionary<string, string>
             {
@@ -360,7 +370,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Volume"] = "SES",
                 ["Language"] = "DİL",
                 ["Save"] = "Kaydet",
-                ["Cancel"] = "İptal"
+                ["Cancel"] = "İptal",
+                ["OpenBluetoothSettings"] = "Bluetooth Ayarlarını Aç"
             },
             "ja" => new Dictionary<string, string>
             {
@@ -376,7 +387,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Volume"] = "音量",
                 ["Language"] = "言語",
                 ["Save"] = "保存",
-                ["Cancel"] = "キャンセル"
+                ["Cancel"] = "キャンセル",
+                ["OpenBluetoothSettings"] = "Bluetooth設定を開く"
             },
             "ko" => new Dictionary<string, string>
             {
@@ -392,7 +404,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Volume"] = "볼륨",
                 ["Language"] = "언어",
                 ["Save"] = "저장",
-                ["Cancel"] = "취소"
+                ["Cancel"] = "취소",
+                ["OpenBluetoothSettings"] = "Bluetooth 설정 열기"
             },
             "zh" => new Dictionary<string, string>
             {
@@ -408,7 +421,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Volume"] = "音量",
                 ["Language"] = "语言",
                 ["Save"] = "保存",
-                ["Cancel"] = "取消"
+                ["Cancel"] = "取消",
+                ["OpenBluetoothSettings"] = "打开蓝牙设置"
             },
             "ar" => new Dictionary<string, string>
             {
@@ -424,7 +438,8 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Volume"] = "الصوت",
                 ["Language"] = "اللغة",
                 ["Save"] = "حفظ",
-                ["Cancel"] = "إلغاء"
+                ["Cancel"] = "إلغاء",
+                ["OpenBluetoothSettings"] = "فتح إعدادات البلوتوث"
             },
             _ => null
         };

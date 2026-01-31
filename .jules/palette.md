@@ -13,3 +13,7 @@
 ## 2024-05-26 - Localized Accessibility Properties
 **Learning:** Programmatic localization (replacing text in code-behind) often misses accessibility properties. Updating `TextBlock.Text` changes the visual label, but `AutomationProperties.Name` on associated inputs remains static or empty unless explicitly updated.
 **Action:** When implementing localization in code-behind, always verify and update `AutomationProperties.Name` for inputs that rely on those labels.
+
+## 2024-05-27 - Actionable Empty States
+**Learning:** An empty state that only says "No devices found" is a dead end. Users feel stuck. Providing a direct action button (e.g., "Open Bluetooth Settings") transforms a frustration point into a helpful step.
+**Action:** Always pair empty state messages with a relevant call-to-action button that helps the user resolve the empty state.

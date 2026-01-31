@@ -162,7 +162,7 @@
                         
                         <!-- List Header -->
                         <Grid Margin="4,0,4,10">
-                            <TextBlock Text="GERÄTE" Style="{StaticResource SectionHeaderStyle}" Margin="0"/>
+                            <TextBlock Text="{Binding Localization[Devices]}" Style="{StaticResource SectionHeaderStyle}" Margin="0"/>
                             <Button Content="⟳" 
                                     Command="{Binding RefreshDevicesCommand}"
                                     HorizontalAlignment="Right"
@@ -172,8 +172,8 @@
                                     Foreground="{StaticResource TextSecondaryBrush}"
                                     BorderThickness="0"
                                     Cursor="Hand"
-                                    ToolTip="Aktualisieren"
-                                    AutomationProperties.Name="Geräte aktualisieren"/>
+                                    ToolTip="{Binding Localization[Refresh]}"
+                                    AutomationProperties.Name="{Binding Localization[Refresh]}"/>
                         </Grid>
                         
                         <!-- Device ListView -->
@@ -255,16 +255,11 @@
                         </ListBox>
                         
                         <!-- Empty State -->
-                        <TextBlock Grid.Row="1"
-                                   Text="Keine Geräte gefunden.&#x0a;Kopple dein Handy in den Windows-Einstellungen."
-                                   TextAlignment="Center"
-                                   FontSize="12"
-                                   Foreground="{StaticResource TextSecondaryBrush}"
-                                   VerticalAlignment="Center"
-                                   HorizontalAlignment="Center"
-                                   LineHeight="18">
-                            <TextBlock.Style>
-                                <Style TargetType="TextBlock">
+                        <StackPanel Grid.Row="1"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Center">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
                                     <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding Devices.Count}" Value="0">
@@ -272,8 +267,20 @@
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </TextBlock.Style>
-                        </TextBlock>
+                            </StackPanel.Style>
+
+                            <TextBlock Text="{Binding Localization[NoDevicesFound]}"
+                                       TextAlignment="Center"
+                                       FontSize="12"
+                                       Foreground="{StaticResource TextSecondaryBrush}"
+                                       LineHeight="18"
+                                       Margin="0,0,0,16"/>
+
+                            <Button Content="{Binding Localization[OpenBluetoothSettings]}"
+                                    Command="{Binding OpenBluetoothSettingsCommand}"
+                                    Style="{StaticResource SecondaryButtonStyle}"
+                                    HorizontalAlignment="Center"/>
+                        </StackPanel>
                     </Grid>
                 </Border>
                 
@@ -308,7 +315,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <Button Content="Verbinden" 
+                    <Button Content="{Binding Localization[Connect]}"
                             Command="{Binding OpenConnectionCommand}"
                             Style="{StaticResource PrimaryButtonStyle}">
                         <Button.IsEnabled>
@@ -324,7 +331,7 @@
                     </Button>
                     
                     <Button Grid.Column="2"
-                            Content="Trennen" 
+                            Content="{Binding Localization[Disconnect]}"
                             Command="{Binding CloseConnectionCommand}"
                             Style="{StaticResource SecondaryButtonStyle}"
                             IsEnabled="{Binding IsConnected}"/>
