@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Windows.Devices.Enumeration;
 using Windows.Media.Audio;
 using BluetoothAudioReceiver.Models;
@@ -92,7 +93,7 @@ public class BluetoothService : IDisposable
         var btDevice = new BluetoothDevice
         {
             Id = device.Id,
-            Name = string.IsNullOrEmpty(device.Name) ? LocalizationService.Instance["UnknownDevice"] : device.Name,
+            Name = SanitizeDeviceName(device.Name),
             IsConnected = device.Properties.TryGetValue("System.Devices.Aep.IsConnected", out var connected) 
                           && connected is bool isConnected && isConnected
         };
@@ -138,6 +139,35 @@ public class BluetoothService : IDisposable
     {
         // Enumeration complete - watcher will continue to monitor for changes
         EnumerationCompleted?.Invoke(this, EventArgs.Empty);
+    }
+
+    /// <summary>
+    /// Sanitizes the device name to remove control characters and limit length.
+    /// This prevents log injection and UI issues.
+    /// </summary>
+    private string SanitizeDeviceName(string name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return LocalizationService.Instance["UnknownDevice"];
+        }
+
+        // Remove control characters (e.g. newlines, tabs, nulls)
+        var sanitizedChars = name.Where(c => !char.IsControl(c)).ToArray();
+        var sanitized = new string(sanitizedChars).Trim();
+
+        if (string.IsNullOrEmpty(sanitized))
+        {
+            return LocalizationService.Instance["UnknownDevice"];
+        }
+
+        // Enforce max length to prevent UI issues or potential DoS
+        if (sanitized.Length > 100)
+        {
+            sanitized = sanitized.Substring(0, 100);
+        }
+
+        return sanitized;
     }
     
     public void Dispose()
