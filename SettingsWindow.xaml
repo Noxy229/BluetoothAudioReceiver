@@ -33,7 +33,8 @@
                                    Foreground="{StaticResource TextPrimaryBrush}"/>
                     </StackPanel>
                     
-                    <Button Content="✕" 
+                    <Button x:Name="WindowCloseButton"
+                            Content="✕"
                             Click="CancelButton_Click"
                             Style="{StaticResource CloseButtonStyle}"
                             HorizontalAlignment="Right"

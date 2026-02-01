@@ -13,3 +13,7 @@
 ## 2024-05-26 - Localized Accessibility Properties
 **Learning:** Programmatic localization (replacing text in code-behind) often misses accessibility properties. Updating `TextBlock.Text` changes the visual label, but `AutomationProperties.Name` on associated inputs remains static or empty unless explicitly updated.
 **Action:** When implementing localization in code-behind, always verify and update `AutomationProperties.Name` for inputs that rely on those labels.
+
+## 2025-02-27 - Hardcoded Accessibility Strings
+**Learning:** XAML files often contain hardcoded strings for `ToolTip` and `AutomationProperties.Name` even when the rest of the app is localized. This leaves users of other languages with mismatched or unintelligible accessibility labels.
+**Action:** Always use binding for `ToolTip` and `AutomationProperties.Name` (e.g., `{Binding Localization[Key]}`) to ensure accessibility labels adapt to the user's language preference.

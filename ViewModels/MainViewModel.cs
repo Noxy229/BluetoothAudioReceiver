@@ -42,6 +42,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [ObservableProperty]
     private string? _errorMessage;
     
+    public LocalizationService Localization => LocalizationService.Instance;
+
     public MainViewModel()
     {
         _bluetoothService = new BluetoothService();

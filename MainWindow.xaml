@@ -52,15 +52,15 @@
                                 Style="{StaticResource TitleBarButtonStyle}"
                                 FontSize="11"
                                 Foreground="{StaticResource TextSecondaryBrush}"
-                                ToolTip="Minimieren"
-                                AutomationProperties.Name="Minimieren"/>
+                                ToolTip="{Binding Localization[Minimize]}"
+                                AutomationProperties.Name="{Binding Localization[Minimize]}"/>
                         <Button Content="✕" 
                                 Click="CloseButton_Click"
                                 Style="{StaticResource CloseButtonStyle}"
                                 FontSize="11"
                                 Foreground="{StaticResource TextSecondaryBrush}"
-                                ToolTip="Schließen"
-                                AutomationProperties.Name="Schließen"/>
+                                ToolTip="{Binding Localization[Close]}"
+                                AutomationProperties.Name="{Binding Localization[Close]}"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -97,8 +97,8 @@
                                 Background="Transparent"
                                 BorderThickness="0"
                                 Cursor="Hand"
-                                ToolTip="Hilfe"
-                                AutomationProperties.Name="Hilfe"
+                                ToolTip="{Binding Localization[Help]}"
+                                AutomationProperties.Name="{Binding Localization[Help]}"
                                 Padding="6"
                                 Margin="0,0,4,0">
                             <TextBlock Text="❓" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
@@ -108,8 +108,8 @@
                                 Background="Transparent"
                                 BorderThickness="0"
                                 Cursor="Hand"
-                                ToolTip="Einstellungen"
-                                AutomationProperties.Name="Einstellungen"
+                                ToolTip="{Binding Localization[Settings]}"
+                                AutomationProperties.Name="{Binding Localization[Settings]}"
                                 Padding="6">
                             <Viewbox Width="16" Height="16">
                                 <Canvas Width="24" Height="24">
@@ -172,8 +172,8 @@
                                     Foreground="{StaticResource TextSecondaryBrush}"
                                     BorderThickness="0"
                                     Cursor="Hand"
-                                    ToolTip="Aktualisieren"
-                                    AutomationProperties.Name="Geräte aktualisieren"/>
+                                    ToolTip="{Binding Localization[Refresh]}"
+                                    AutomationProperties.Name="{Binding Localization[Refresh]}"/>
                         </Grid>
                         
                         <!-- Device ListView -->
