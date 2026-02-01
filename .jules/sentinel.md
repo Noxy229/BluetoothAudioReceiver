@@ -7,3 +7,8 @@
 **Vulnerability:** The application was displaying raw stack traces in the crash dialog (Information Disclosure) and appending to the log file indefinitely (Potential Resource Exhaustion/DoS).
 **Learning:** Default global exception handlers often expose too much internal information to users. Unbounded log files can consume all available disk space if a crash loop occurs.
 **Prevention:** Implement log rotation (e.g., max 5MB, keep 1 backup) and display sanitized, generic error messages to the user while pointing them to the secure log file location.
+
+## 2024-10-27 - Bluetooth Device Name Injection
+**Vulnerability:** Bluetooth device names were treated as trusted input, allowing control characters (potential log injection) and excessively long strings (DoS/UI breaking) to be processed.
+**Learning:** External hardware inputs are often implicitly trusted by developers who assume "hardware is safe," but Bluetooth names are user-configurable and can be malicious.
+**Prevention:** Always sanitize external input, even from hardware devices. Use regex `\p{C}` to strip control characters and enforce reasonable length limits.
