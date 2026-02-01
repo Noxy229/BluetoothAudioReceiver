@@ -81,6 +81,10 @@ public partial class SettingsWindow : Window
         // Buttons
         SaveButton.Content = _loc["Save"];
         CancelButton.Content = _loc["Cancel"];
+
+        // Window controls
+        WindowCloseButton.ToolTip = _loc["Close"];
+        AutomationProperties.SetName(WindowCloseButton, _loc["Close"]);
     }
     
     private void VolumeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)

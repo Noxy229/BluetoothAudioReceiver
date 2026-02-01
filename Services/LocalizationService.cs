@@ -75,6 +75,8 @@ public class LocalizationService : INotifyPropertyChanged
             "en" => new Dictionary<string, string>
             {
                 ["AppTitle"] = "Audio Receiver",
+                ["Minimize"] = "Minimize",
+                ["Close"] = "Close",
                 ["Show"] = "Show",
                 ["Exit"] = "Exit",
                 ["Idle"] = "Idle",
@@ -132,6 +134,8 @@ public class LocalizationService : INotifyPropertyChanged
             "de" => new Dictionary<string, string>
             {
                 ["AppTitle"] = "Audio Receiver",
+                ["Minimize"] = "Minimieren",
+                ["Close"] = "Schließen",
                 ["Show"] = "Anzeigen",
                 ["Exit"] = "Beenden",
                 ["Idle"] = "Bereit",
