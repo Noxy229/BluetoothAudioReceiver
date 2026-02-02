@@ -13,3 +13,7 @@
 ## 2024-05-26 - Localized Accessibility Properties
 **Learning:** Programmatic localization (replacing text in code-behind) often misses accessibility properties. Updating `TextBlock.Text` changes the visual label, but `AutomationProperties.Name` on associated inputs remains static or empty unless explicitly updated.
 **Action:** When implementing localization in code-behind, always verify and update `AutomationProperties.Name` for inputs that rely on those labels.
+
+## 2024-05-27 - Preventing Layout Shift on Focus
+**Learning:** Adding a focus border to an element that typically has none (like a Slider track) causes layout shift or "jumping" when the border thickness changes from 0 to 1.
+**Action:** Pre-allocate the border in the default state with `BorderThickness="1"` and `BorderBrush="Transparent"`, so the focus trigger only needs to change the color.
