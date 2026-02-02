@@ -13,3 +13,7 @@
 ## 2026-01-25 - DeviceWatcher Enumeration Flood
 **Learning:** `DeviceWatcher` fires `Added` events rapidly for cached devices on startup. Updating UI status strings for every single event causes visible jitter/overhead.
 **Action:** Use `EnumerationCompleted` event to batch the status update until the initial flood is over.
+
+## 2026-05-22 - Efficient Async Timeouts
+**Learning:** Using `Task.WhenAny` combined with `Task.Delay` for timeouts leaves the timer running in the background even if the operation completes early. This can lead to accumulated "zombie" timers.
+**Action:** Use `Task.WaitAsync` (available in .NET 6+) which handles cancellation and resource cleanup more efficiently. Remember to catch `TimeoutException`.
