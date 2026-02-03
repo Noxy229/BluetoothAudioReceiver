@@ -13,3 +13,7 @@
 ## 2024-05-26 - Localized Accessibility Properties
 **Learning:** Programmatic localization (replacing text in code-behind) often misses accessibility properties. Updating `TextBlock.Text` changes the visual label, but `AutomationProperties.Name` on associated inputs remains static or empty unless explicitly updated.
 **Action:** When implementing localization in code-behind, always verify and update `AutomationProperties.Name` for inputs that rely on those labels.
+
+## 2024-05-27 - Incomplete Localization
+**Learning:** Partial localization (e.g. localized ViewModels but hardcoded XAML) creates a jarring user experience where some text updates while others don't. This is common when developers prioritize dynamic data over static labels.
+**Action:** Always verify that static XAML text is also bound to the localization source (using `x:Static` or similar) to ensure the entire UI respects the language setting.
