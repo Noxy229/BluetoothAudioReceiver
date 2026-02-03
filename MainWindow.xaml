@@ -1,7 +1,8 @@
 <Window x:Class="BluetoothAudioReceiver.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Bluetooth Audio Receiver" 
+        xmlns:services="clr-namespace:BluetoothAudioReceiver.Services"
+        Title="{Binding [AppTitle], Source={x:Static services:LocalizationService.Instance}}"
         Height="520" Width="400"
         MinHeight="450" MinWidth="360"
         WindowStartupLocation="CenterScreen"
@@ -37,7 +38,7 @@
                                 </Canvas>
                             </Viewbox>
                         </Border>
-                        <TextBlock Text="Audio Receiver" 
+                        <TextBlock Text="{Binding [AppTitle], Source={x:Static services:LocalizationService.Instance}}"
                                    FontSize="13" 
                                    FontWeight="SemiBold"
                                    Foreground="{StaticResource TextPrimaryBrush}"
@@ -97,8 +98,8 @@
                                 Background="Transparent"
                                 BorderThickness="0"
                                 Cursor="Hand"
-                                ToolTip="Hilfe"
-                                AutomationProperties.Name="Hilfe"
+                                ToolTip="{Binding [Help], Source={x:Static services:LocalizationService.Instance}}"
+                                AutomationProperties.Name="{Binding [Help], Source={x:Static services:LocalizationService.Instance}}"
                                 Padding="6"
                                 Margin="0,0,4,0">
                             <TextBlock Text="❓" FontSize="14" Foreground="{StaticResource TextSecondaryBrush}"/>
@@ -108,8 +109,8 @@
                                 Background="Transparent"
                                 BorderThickness="0"
                                 Cursor="Hand"
-                                ToolTip="Einstellungen"
-                                AutomationProperties.Name="Einstellungen"
+                                ToolTip="{Binding [Settings], Source={x:Static services:LocalizationService.Instance}}"
+                                AutomationProperties.Name="{Binding [Settings], Source={x:Static services:LocalizationService.Instance}}"
                                 Padding="6">
                             <Viewbox Width="16" Height="16">
                                 <Canvas Width="24" Height="24">
@@ -162,7 +163,7 @@
                         
                         <!-- List Header -->
                         <Grid Margin="4,0,4,10">
-                            <TextBlock Text="GERÄTE" Style="{StaticResource SectionHeaderStyle}" Margin="0"/>
+                            <TextBlock Text="{Binding [Devices], Source={x:Static services:LocalizationService.Instance}}" Style="{StaticResource SectionHeaderStyle}" Margin="0"/>
                             <Button Content="⟳" 
                                     Command="{Binding RefreshDevicesCommand}"
                                     HorizontalAlignment="Right"
@@ -172,8 +173,8 @@
                                     Foreground="{StaticResource TextSecondaryBrush}"
                                     BorderThickness="0"
                                     Cursor="Hand"
-                                    ToolTip="Aktualisieren"
-                                    AutomationProperties.Name="Geräte aktualisieren"/>
+                                    ToolTip="{Binding [Refresh], Source={x:Static services:LocalizationService.Instance}}"
+                                    AutomationProperties.Name="{Binding [Refresh], Source={x:Static services:LocalizationService.Instance}}"/>
                         </Grid>
                         
                         <!-- Device ListView -->
@@ -256,7 +257,7 @@
                         
                         <!-- Empty State -->
                         <TextBlock Grid.Row="1"
-                                   Text="Keine Geräte gefunden.&#x0a;Kopple dein Handy in den Windows-Einstellungen."
+                                   Text="{Binding [NoDevicesFound], Source={x:Static services:LocalizationService.Instance}}"
                                    TextAlignment="Center"
                                    FontSize="12"
                                    Foreground="{StaticResource TextSecondaryBrush}"
@@ -308,7 +309,7 @@
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     
-                    <Button Content="Verbinden" 
+                    <Button Content="{Binding [Connect], Source={x:Static services:LocalizationService.Instance}}"
                             Command="{Binding OpenConnectionCommand}"
                             Style="{StaticResource PrimaryButtonStyle}">
                         <Button.IsEnabled>
@@ -324,7 +325,7 @@
                     </Button>
                     
                     <Button Grid.Column="2"
-                            Content="Trennen" 
+                            Content="{Binding [Disconnect], Source={x:Static services:LocalizationService.Instance}}"
                             Command="{Binding CloseConnectionCommand}"
                             Style="{StaticResource SecondaryButtonStyle}"
                             IsEnabled="{Binding IsConnected}"/>
