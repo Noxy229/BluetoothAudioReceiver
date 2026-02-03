@@ -7,3 +7,8 @@
 **Vulnerability:** The application was displaying raw stack traces in the crash dialog (Information Disclosure) and appending to the log file indefinitely (Potential Resource Exhaustion/DoS).
 **Learning:** Default global exception handlers often expose too much internal information to users. Unbounded log files can consume all available disk space if a crash loop occurs.
 **Prevention:** Implement log rotation (e.g., max 5MB, keep 1 backup) and display sanitized, generic error messages to the user while pointing them to the secure log file location.
+
+## 2026-02-03 - Untrusted Hardware Input
+**Vulnerability:** Bluetooth device names were treated as trusted strings and passed directly to the UI model. A device with a malicious name (e.g., control characters, excessive length) could disrupt the UI or pollute logs (Log Injection).
+**Learning:** Data originating from external hardware (via APIs like `Windows.Devices.Enumeration`) is untrusted input, similar to HTTP request parameters.
+**Prevention:** Sanitize all device properties (trim whitespace, remove control chars, enforce length limits) at the boundary where they enter the application domain (e.g., in the Service layer).
