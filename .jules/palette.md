@@ -13,3 +13,7 @@
 ## 2024-05-26 - Localized Accessibility Properties
 **Learning:** Programmatic localization (replacing text in code-behind) often misses accessibility properties. Updating `TextBlock.Text` changes the visual label, but `AutomationProperties.Name` on associated inputs remains static or empty unless explicitly updated.
 **Action:** When implementing localization in code-behind, always verify and update `AutomationProperties.Name` for inputs that rely on those labels.
+
+## 2024-05-27 - Slider Focus Visualization
+**Learning:** Custom Slider templates often remove the default focus visual. Adding a border change to the Track is an effective way to restore it without altering the thumb size or position.
+**Action:** When restyling Sliders, always ensure the Track or Thumb has a visual state for IsKeyboardFocused.
