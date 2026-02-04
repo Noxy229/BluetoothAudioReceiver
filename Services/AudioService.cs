@@ -156,8 +156,13 @@ public class AudioService : IDisposable
                 return;
             }
 
-            var timeoutTask = Task.Delay(timeoutMs);
-            await Task.WhenAny(tcs.Task, timeoutTask);
+            // OPTIMIZATION: Use WaitAsync instead of Task.WhenAny + Task.Delay
+            // This prevents the timer from leaking if the event fires quickly.
+            await tcs.Task.WaitAsync(TimeSpan.FromMilliseconds(timeoutMs));
+        }
+        catch (TimeoutException)
+        {
+            // Ignore timeout, just return as the original code did
         }
         finally
         {
