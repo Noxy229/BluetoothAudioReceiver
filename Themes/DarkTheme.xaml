@@ -183,6 +183,8 @@
                                 Height="6" 
                                 CornerRadius="3"
                                 Background="{StaticResource SurfaceVariantBrush}"
+                                BorderBrush="Transparent"
+                                BorderThickness="1"
                                 VerticalAlignment="Center"/>
                         
                         <!-- Thumb Track -->
@@ -219,6 +221,11 @@
                             </Track.Thumb>
                         </Track>
                     </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsKeyboardFocused" Value="True">
+                            <Setter TargetName="TrackBackground" Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
