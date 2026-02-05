@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
@@ -184,6 +185,18 @@ public partial class MainWindow : Window
     {
         var helpWindow = new HelpWindow { Owner = this };
         helpWindow.ShowDialog();
+    }
+
+    private void OpenBluetoothSettings_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo("ms-settings:bluetooth") { UseShellExecute = true });
+        }
+        catch (Exception)
+        {
+            // Ignore if settings cannot be opened
+        }
     }
     
     private void ShowSettingsWindow()

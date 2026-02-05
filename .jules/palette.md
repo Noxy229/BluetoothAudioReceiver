@@ -13,3 +13,7 @@
 ## 2024-05-26 - Localized Accessibility Properties
 **Learning:** Programmatic localization (replacing text in code-behind) often misses accessibility properties. Updating `TextBlock.Text` changes the visual label, but `AutomationProperties.Name` on associated inputs remains static or empty unless explicitly updated.
 **Action:** When implementing localization in code-behind, always verify and update `AutomationProperties.Name` for inputs that rely on those labels.
+
+## 2024-06-01 - Partial Localization Binding
+**Learning:** `MainWindow.xaml` uses a mix of hardcoded text and `x:Static` binding to `LocalizationService`. This leads to "accidental" hardcoding where developers might miss using the service because it requires an explicit XML namespace declaration (`xmlns:services`) that wasn't present on the root element.
+**Action:** When implementing localization via `x:Static` binding, ensure the services namespace is globally available in the Window/UserControl definition to encourage consistent usage and prevent hardcoded fallback text.
