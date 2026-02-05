@@ -7,3 +7,8 @@
 **Vulnerability:** The application was displaying raw stack traces in the crash dialog (Information Disclosure) and appending to the log file indefinitely (Potential Resource Exhaustion/DoS).
 **Learning:** Default global exception handlers often expose too much internal information to users. Unbounded log files can consume all available disk space if a crash loop occurs.
 **Prevention:** Implement log rotation (e.g., max 5MB, keep 1 backup) and display sanitized, generic error messages to the user while pointing them to the secure log file location.
+
+## 2024-10-27 - Unsanitized Bluetooth Inputs
+**Vulnerability:** `BluetoothService` trusted `DeviceInformation.Name` directly from the OS enumeration, allowing control characters and potentially long strings to enter the application model.
+**Learning:** Even hardware enumeration APIs return "user input" (from the remote device owner) and must be treated as untrusted.
+**Prevention:** Always sanitize external strings (trim, remove control chars, limit length) before crossing the boundary into the application model.
