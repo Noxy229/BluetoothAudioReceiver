@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Windows.Devices.Enumeration;
 using Windows.Media.Audio;
 using BluetoothAudioReceiver.Models;
@@ -87,12 +88,43 @@ public class BluetoothService : IDisposable
         _deviceWatcher = null;
     }
     
+    /// <summary>
+    /// Sanitizes the device name to remove control characters and limit length.
+    /// Prevents UI issues and potential log injection.
+    /// </summary>
+    private string SanitizeDeviceName(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return LocalizationService.Instance["UnknownDevice"];
+        }
+
+        // Remove control characters (e.g. null bytes, newlines) that could be used for log injection or UI spoofing
+        string sanitized = new string(name.Where(c => !char.IsControl(c)).ToArray());
+
+        // Trim whitespace
+        sanitized = sanitized.Trim();
+
+        // Enforce reasonable length limit (100 chars)
+        if (sanitized.Length > 100)
+        {
+            sanitized = sanitized.Substring(0, 100);
+        }
+
+        if (string.IsNullOrWhiteSpace(sanitized))
+        {
+            return LocalizationService.Instance["UnknownDevice"];
+        }
+
+        return sanitized;
+    }
+
     private void OnDeviceAdded(DeviceWatcher sender, DeviceInformation device)
     {
         var btDevice = new BluetoothDevice
         {
             Id = device.Id,
-            Name = string.IsNullOrEmpty(device.Name) ? LocalizationService.Instance["UnknownDevice"] : device.Name,
+            Name = SanitizeDeviceName(device.Name),
             IsConnected = device.Properties.TryGetValue("System.Devices.Aep.IsConnected", out var connected) 
                           && connected is bool isConnected && isConnected
         };
