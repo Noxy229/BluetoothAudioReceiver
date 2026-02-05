@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
@@ -20,9 +21,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private readonly AudioService _audioService;
     private readonly object _devicesLock = new();
     private bool _isEnumerating = true;
+    private readonly List<BluetoothDevice> _batchedDevices = new();
     
     [ObservableProperty]
-    private ObservableCollection<BluetoothDevice> _devices = new();
+    private ObservableRangeCollection<BluetoothDevice> _devices = new();
     
     [ObservableProperty]
     private BluetoothDevice? _selectedDevice;
@@ -68,9 +70,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
     {
         lock (_devicesLock)
         {
-            Devices.Add(device);
-            if (!_isEnumerating)
+            if (_isEnumerating)
             {
+                _batchedDevices.Add(device);
+            }
+            else
+            {
+                Devices.Add(device);
                 StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
             }
         }
@@ -81,6 +87,13 @@ public partial class MainViewModel : ObservableObject, IDisposable
         lock (_devicesLock)
         {
             _isEnumerating = false;
+
+            if (_batchedDevices.Count > 0)
+            {
+                Devices.AddRange(_batchedDevices);
+                _batchedDevices.Clear();
+            }
+
             StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
         }
     }
@@ -162,6 +175,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
         lock (_devicesLock)
         {
             Devices.Clear();
+            _batchedDevices.Clear();
         }
         _bluetoothService.StopWatching();
 
