@@ -13,3 +13,7 @@
 ## 2024-05-26 - Localized Accessibility Properties
 **Learning:** Programmatic localization (replacing text in code-behind) often misses accessibility properties. Updating `TextBlock.Text` changes the visual label, but `AutomationProperties.Name` on associated inputs remains static or empty unless explicitly updated.
 **Action:** When implementing localization in code-behind, always verify and update `AutomationProperties.Name` for inputs that rely on those labels.
+
+## 2024-05-27 - Icon Button Consistency
+**Learning:** Icon-only buttons with inline `Background="Transparent"` styles often lack visible focus indicators and hover states.
+**Action:** Create a shared `IconButtonStyle` that includes a `Transparent` 1px border by default (to reserve space) and uses `ControlTemplate` triggers to show a focus ring and handle foreground color changes on hover. Use Binding (AncestoryType=Button) for internal Path Fills to respect these state changes.
