@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Windows.Devices.Enumeration;
 using Windows.Media.Audio;
 using BluetoothAudioReceiver.Models;
@@ -29,7 +30,7 @@ public class BluetoothService : IDisposable
     {
         lock (_lock)
         {
-            return new List<BluetoothDevice>(_devices.Values);
+            return _devices.Values.ToArray();
         }
     }
     
