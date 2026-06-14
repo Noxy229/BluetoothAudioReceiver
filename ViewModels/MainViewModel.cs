@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using System.Windows;
@@ -41,6 +42,10 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     [ObservableProperty]
     private string? _errorMessage;
+
+    public string SelectedDeviceName => SelectedDevice?.Name ?? LocalizationService.Instance.Get("NoDeviceSelected");
+
+    public string SelectedDeviceStatus => SelectedDevice?.DisplayStatus ?? LocalizationService.Instance.Get("SelectFromList");
     
     public MainViewModel()
     {
@@ -62,6 +67,37 @@ public partial class MainViewModel : ObservableObject, IDisposable
         
         // Start discovering devices
         _bluetoothService.StartWatching();
+    }
+
+    partial void OnSelectedDeviceChanging(BluetoothDevice? value)
+    {
+        if (SelectedDevice != null)
+        {
+            SelectedDevice.PropertyChanged -= OnSelectedDevicePropertyChanged;
+        }
+    }
+
+    partial void OnSelectedDeviceChanged(BluetoothDevice? value)
+    {
+        if (value != null)
+        {
+            value.PropertyChanged += OnSelectedDevicePropertyChanged;
+        }
+
+        OnPropertyChanged(nameof(SelectedDeviceName));
+        OnPropertyChanged(nameof(SelectedDeviceStatus));
+    }
+
+    private void OnSelectedDevicePropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(BluetoothDevice.Name))
+        {
+            OnPropertyChanged(nameof(SelectedDeviceName));
+        }
+        else if (e.PropertyName == nameof(BluetoothDevice.DisplayStatus))
+        {
+            OnPropertyChanged(nameof(SelectedDeviceStatus));
+        }
     }
     
     private void OnDeviceAdded(object? sender, BluetoothDevice device)
@@ -119,6 +155,35 @@ public partial class MainViewModel : ObservableObject, IDisposable
             StatusDetail = LocalizationService.Instance.Get("SelectDevice");
         }
     }
+
+    public void RefreshLocalization()
+    {
+        foreach (var device in Devices)
+        {
+            device.RefreshDisplayStatus();
+        }
+
+        if (IsConnecting && SelectedDevice != null)
+        {
+            Status = LocalizationService.Instance.Get("Connecting");
+            StatusDetail = string.Format(LocalizationService.Instance.Get("OpeningConnectionTo"), SelectedDevice.Name);
+        }
+        else if (IsConnected && SelectedDevice != null)
+        {
+            Status = LocalizationService.Instance.Get("Connected");
+            StatusDetail = string.Format(LocalizationService.Instance.Get("AudioReadyFrom"), SelectedDevice.Name);
+        }
+        else
+        {
+            Status = LocalizationService.Instance.Get("Idle");
+            StatusDetail = _isEnumerating
+                ? LocalizationService.Instance.Get("Scanning")
+                : string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
+        }
+
+        OnPropertyChanged(nameof(SelectedDeviceName));
+        OnPropertyChanged(nameof(SelectedDeviceStatus));
+    }
     
     private void OnStreamingStateChanged(object? sender, string state)
     {
@@ -172,6 +237,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     public void Dispose()
     {
+        if (SelectedDevice != null)
+        {
+            SelectedDevice.PropertyChanged -= OnSelectedDevicePropertyChanged;
+        }
+
         _bluetoothService.DeviceAdded -= OnDeviceAdded;
         _bluetoothService.DeviceRemoved -= OnDeviceRemoved;
         _bluetoothService.EnumerationCompleted -= OnEnumerationCompleted;

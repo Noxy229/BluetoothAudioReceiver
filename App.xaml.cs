@@ -2,6 +2,8 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Windows;
+using BluetoothAudioReceiver.Models;
+using BluetoothAudioReceiver.Services;
 
 namespace BluetoothAudioReceiver;
 
@@ -18,6 +20,9 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
+        var loc = LocalizationService.Instance;
+        loc.CurrentLanguage = AppSettings.Load().Language;
+
         const string appName = "BluetoothAudioReceiver_SingleInstance_Mutex_Global";
         bool createdNew;
 
@@ -27,7 +32,7 @@ public partial class App : Application
         {
             // App is already running
             // Optional: Bring existing window to front (requires native calls, skipping for 'Low Overhead' requirement unless asked)
-            MessageBox.Show("Bluetooth Audio Receiver läuft bereits.", "Hinweis", MessageBoxButton.OK, MessageBoxImage.Information);
+            MessageBox.Show(loc["AlreadyRunning"], loc["Notice"], MessageBoxButton.OK, MessageBoxImage.Information);
             Shutdown();
             return;
         }
@@ -41,7 +46,8 @@ public partial class App : Application
         e.Handled = true; // Prevent immediate termination if possible to show dialog
 
         string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "BluetoothAudioReceiver", "logs", "crash_log.txt");
-        MessageBox.Show($"An unexpected error occurred. The application will close.\n\nPlease check the log file for details:\n{logPath}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        var loc = LocalizationService.Instance;
+        MessageBox.Show($"{loc["UnexpectedError"]}\n\n{loc["CheckLogFile"]}\n{logPath}", loc["Error"], MessageBoxButton.OK, MessageBoxImage.Error);
         Shutdown();
     }
 

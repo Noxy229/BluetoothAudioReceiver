@@ -60,6 +60,9 @@ public partial class SettingsWindow : Window
     {
         // Title bar
         Title = _loc["Settings"];
+        TitleTextBlock.Text = _loc["Settings"];
+        CloseButton.ToolTip = _loc["Close"];
+        AutomationProperties.SetName(CloseButton, _loc["Close"]);
         
         // Section headers and labels (these need to be set in code since they use x:Name)
         VolumeHeader.Text = _loc["Volume"];

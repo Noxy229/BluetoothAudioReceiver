@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Data;
 using System.Windows.Input;
 using BluetoothAudioReceiver.Models;
@@ -19,6 +20,7 @@ public partial class MainWindow : Window
     private TrayIconService? _trayService;
     private AppSettings _settings;
     private MainViewModel? _viewModel;
+    private readonly LocalizationService _loc = LocalizationService.Instance;
     private bool _isExiting;
     
     public MainWindow()
@@ -27,6 +29,7 @@ public partial class MainWindow : Window
         
         // Load settings
         _settings = AppSettings.Load();
+        _loc.CurrentLanguage = _settings.Language;
         
         // Initialize ViewModel
         _viewModel = new MainViewModel();
@@ -40,6 +43,9 @@ public partial class MainWindow : Window
         
         // Subscribe to connection state changes for tray notifications
         _viewModel.PropertyChanged += OnViewModelPropertyChanged;
+        _loc.PropertyChanged += OnLocalizationPropertyChanged;
+
+        RefreshLocalizedUi();
         
         // Handle minimize to tray
         StateChanged += OnStateChanged;
@@ -78,7 +84,7 @@ public partial class MainWindow : Window
         {
             WindowState = WindowState.Minimized;
             Hide();
-            _trayService?.ShowNotification("Minimiert", "Die App läuft weiter im System Tray.");
+            _trayService?.ShowNotification(_loc["Minimized"], _loc["AppRunningInTray"]);
         }
         else
         {
@@ -103,8 +109,9 @@ public partial class MainWindow : Window
         {
             if (_viewModel.IsConnected)
             {
-                _trayService.ShowNotification("Verbunden", 
-                    $"Audio-Verbindung zu {_viewModel.SelectedDevice?.Name} hergestellt.");
+                _trayService.ShowNotification(
+                    _loc["Connected"],
+                    string.Format(_loc["AudioConnectionEstablished"], _viewModel.SelectedDevice?.Name));
                 
                 // Save last device for auto-connect
                 if (_viewModel.SelectedDevice != null)
@@ -136,14 +143,12 @@ public partial class MainWindow : Window
             e.Cancel = true;
             WindowState = WindowState.Minimized;
             Hide();
-            _trayService?.ShowNotification("Minimiert", 
-                "Die App läuft weiter im System Tray.");
+            _trayService?.ShowNotification(_loc["Minimized"], _loc["AppRunningInTray"]);
         }
         else
         {
             // Actually closing - clean up
-            _viewModel?.Dispose();
-            _trayService?.Dispose();
+            DisposeServices();
         }
     }
     
@@ -161,8 +166,7 @@ public partial class MainWindow : Window
     private void OnExitRequested(object? sender, EventArgs e)
     {
         _isExiting = true;
-        _viewModel?.Dispose();
-        _trayService?.Dispose();
+        DisposeServices();
         Application.Current.Shutdown();
     }
     
@@ -199,10 +203,67 @@ public partial class MainWindow : Window
         if (settingsWindow.ShowDialog() == true)
         {
             _settings = AppSettings.Load();
+            _loc.CurrentLanguage = _settings.Language;
+            RefreshLocalizedUi();
         }
     }
     
     #endregion
+
+    private void ApplyLocalization()
+    {
+        Title = _loc["FullAppTitle"];
+        AppTitleTextBlock.Text = _loc["AppTitle"];
+        DevicesHeaderTextBlock.Text = _loc["Devices"];
+        NoDevicesTextBlock.Text = _loc["NoDevicesFound"];
+        ConnectButton.Content = _loc["Connect"];
+        DisconnectButton.Content = _loc["Disconnect"];
+
+        MinimizeButton.ToolTip = _loc["Minimize"];
+        CloseButton.ToolTip = _loc["Close"];
+        HelpButton.ToolTip = _loc["Help"];
+        SettingsButton.ToolTip = _loc["Settings"];
+        RefreshButton.ToolTip = _loc["Refresh"];
+
+        AutomationProperties.SetName(MinimizeButton, _loc["Minimize"]);
+        AutomationProperties.SetName(CloseButton, _loc["Close"]);
+        AutomationProperties.SetName(HelpButton, _loc["Help"]);
+        AutomationProperties.SetName(SettingsButton, _loc["Settings"]);
+        AutomationProperties.SetName(RefreshButton, _loc["RefreshDevices"]);
+    }
+
+    private void OnLocalizationPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName is nameof(LocalizationService.CurrentLanguage) or "Item[]")
+        {
+            RefreshLocalizedUi();
+        }
+    }
+
+    private void RefreshLocalizedUi()
+    {
+        ApplyLocalization();
+        _trayService?.RefreshLocalization();
+        _viewModel?.RefreshLocalization();
+        if (_viewModel != null)
+        {
+            _trayService?.UpdateStatus(_viewModel.Status);
+        }
+    }
+
+    private void DisposeServices()
+    {
+        _loc.PropertyChanged -= OnLocalizationPropertyChanged;
+        if (_viewModel != null)
+        {
+            _viewModel.PropertyChanged -= OnViewModelPropertyChanged;
+            _viewModel.Dispose();
+            _viewModel = null;
+        }
+
+        _trayService?.Dispose();
+        _trayService = null;
+    }
 }
 
 /// <summary>
