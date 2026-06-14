@@ -17,7 +17,7 @@
 1. Download the latest release from [Releases](https://github.com/Noxy229/BluetoothAudioReceiver/releases)
 2. Run BluetoothAudioReceiver.exe
 3. Pair your phone via Windows Bluetooth settings
-4. Select your device and click "Verbinden"
+4. Select your device and click "Connect"
 
 > [!NOTE]
 > **SmartScreen Warning**: You may see a "Windows protected your PC" popup because the app is currently waiting for Microsoft's verification.

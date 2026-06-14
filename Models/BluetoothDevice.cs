@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using BluetoothAudioReceiver.Services;
 
 namespace BluetoothAudioReceiver.Models;
 
@@ -21,5 +22,12 @@ public partial class BluetoothDevice : ObservableObject
     [NotifyPropertyChangedFor(nameof(DisplayStatus))]
     private bool _isAudioStreaming;
 
-    public string DisplayStatus => IsAudioStreaming ? "Streaming" : (IsConnected ? "Connected" : "Paired");
+    public string DisplayStatus => IsAudioStreaming
+        ? LocalizationService.Instance.Get("Streaming")
+        : (IsConnected ? LocalizationService.Instance.Get("Connected") : LocalizationService.Instance.Get("Paired"));
+
+    public void RefreshDisplayStatus()
+    {
+        OnPropertyChanged(nameof(DisplayStatus));
+    }
 }

@@ -55,19 +55,19 @@ public class AudioService : IDisposable
                 {
                     if (attempt == MaxRetries)
                     {
-                        ErrorOccurred?.Invoke(this, $"Error opening connection: {ex.Message}");
+                        ErrorOccurred?.Invoke(this, string.Format(LocalizationService.Instance.Get("ErrorOpeningConnection"), ex.Message));
                         return false;
                     }
                     await Task.Delay(RetryDelayMs);
                 }
             }
             
-            ErrorOccurred?.Invoke(this, "Could not establish connection after multiple attempts.");
+            ErrorOccurred?.Invoke(this, LocalizationService.Instance.Get("ConnectionFailedAfterRetries"));
             return false;
         }
         catch (Exception ex)
         {
-            ErrorOccurred?.Invoke(this, $"Error opening connection: {ex.Message}");
+            ErrorOccurred?.Invoke(this, string.Format(LocalizationService.Instance.Get("ErrorOpeningConnection"), ex.Message));
             return false;
         }
     }
@@ -81,7 +81,7 @@ public class AudioService : IDisposable
         {
             if (attempt == MaxRetries)
             {
-                ErrorOccurred?.Invoke(this, "Could not create audio connection. Device may not support A2DP.");
+                ErrorOccurred?.Invoke(this, LocalizationService.Instance.Get("CreateAudioConnectionFailed"));
             }
             return false;
         }
@@ -99,12 +99,9 @@ public class AudioService : IDisposable
         
         if (result.Status != AudioPlaybackConnectionOpenResultStatus.Success)
         {
-            // Extended error info
-            var extendedError = result.ExtendedError?.Message ?? "No extended error";
-            
             if (attempt == MaxRetries)
             {
-                ErrorOccurred?.Invoke(this, $"Failed to open audio connection: {result.Status}");
+                ErrorOccurred?.Invoke(this, string.Format(LocalizationService.Instance.Get("OpenAudioConnectionFailed"), result.Status));
             }
             
             // Clean up failed connection
