@@ -87,7 +87,7 @@ public partial class MainViewModel : ObservableObject, IDisposable
             for (var i = Devices.Count - 1; i >= 0; i--)
                 if (Devices[i].Id == device.Id) Devices.RemoveAt(i);
             Devices.Add(device);
-            if (!_isEnumerating)
+            if (!_isEnumerating && CanChangeDevice)
             {
                 StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
             }
@@ -105,7 +105,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
         lock (_devicesLock)
         {
             _isEnumerating = false;
-            StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
+            if (CanChangeDevice)
+                StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
         }
         if (!_autoConnectAttempted && _settings.AutoConnect && !IsConnected && !IsConnecting)
         {
@@ -138,7 +139,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
                     break;
                 }
             }
-            StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
+            if (CanChangeDevice)
+                StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
         }
     }
     

@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using System.Windows;
 using BluetoothAudioReceiver.Models;
@@ -12,16 +13,14 @@ namespace BluetoothAudioReceiver.Services;
 public class TrayIconService : IDisposable
 {
     private NotifyIcon? _trayIcon;
-    private readonly Window _mainWindow;
     private readonly AppSettings _settings;
     
     public event EventHandler? ShowWindowRequested;
     public event EventHandler? ExitRequested;
     public event EventHandler? SettingsRequested;
     
-    public TrayIconService(Window mainWindow, AppSettings settings)
+    public TrayIconService(AppSettings settings)
     {
-        _mainWindow = mainWindow;
         _settings = settings;
         InitializeTrayIcon();
     }
@@ -82,9 +81,22 @@ public class TrayIconService : IDisposable
         g.DrawLine(whitePen, 16, 26, 22, 20);
         g.DrawLine(whitePen, 22, 20, 10, 12);
         
-        return Icon.FromHandle(bitmap.GetHicon());
+        var handle = bitmap.GetHicon();
+        try
+        {
+            using var temporaryIcon = Icon.FromHandle(handle);
+            return (Icon)temporaryIcon.Clone();
+        }
+        finally
+        {
+            DestroyIcon(handle);
+        }
     }
     
+    [DllImport("user32.dll")]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool DestroyIcon(IntPtr handle);
+
     /// <summary>
     /// Updates the tray icon tooltip text.
     /// </summary>
@@ -92,7 +104,8 @@ public class TrayIconService : IDisposable
     {
         if (_trayIcon != null)
         {
-            _trayIcon.Text = $"Bluetooth Audio Receiver - {status}";
+            var text = $"Bluetooth Audio Receiver - {status}";
+            _trayIcon.Text = text.Length > 63 ? text[..63] : text;
         }
     }
     
@@ -112,7 +125,11 @@ public class TrayIconService : IDisposable
         if (_trayIcon != null)
         {
             _trayIcon.Visible = false;
+            var icon = _trayIcon.Icon;
+            var menu = _trayIcon.ContextMenuStrip;
             _trayIcon.Dispose();
+            icon?.Dispose();
+            menu?.Dispose();
             _trayIcon = null;
         }
     }

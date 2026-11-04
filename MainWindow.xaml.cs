@@ -35,7 +35,7 @@ public partial class MainWindow : Window
         DataContext = _viewModel;
         
         // Initialize tray icon
-        _trayService = new TrayIconService(this, _settings);
+        _trayService = new TrayIconService(_settings);
         _trayService.ShowWindowRequested += OnShowWindowRequested;
         _trayService.ExitRequested += OnExitRequested;
         _trayService.SettingsRequested += OnSettingsRequested;

@@ -6,6 +6,7 @@
 - Connect automatically to the saved device when the setting is enabled.
 - Apply the saved language at startup and localize the main connection controls.
 - Restore settings when the settings window is dismissed, including through the window close button.
+- Release native tray icon resources on exit and limit tooltip text to the supported length.
 - Preserve the shared notification settings after saving, improve secondary text contrast, and show the actual app version in Help.
 - Save settings through a temporary file to reduce the risk of a truncated settings file.
 
