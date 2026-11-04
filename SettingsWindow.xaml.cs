@@ -54,6 +54,11 @@ public partial class SettingsWindow : Window
         
         // Apply localized text
         ApplyLocalization();
+        Closed += (_, _) =>
+        {
+            if (DialogResult != true) RestoreSettings();
+            _volumeService.Dispose();
+        };
     }
     
     private void ApplyLocalization()
@@ -122,12 +127,17 @@ public partial class SettingsWindow : Window
         // Save settings to file
         _settings.Save();
         
-        _volumeService.Dispose();
         DialogResult = true;
         Close();
     }
     
     private void CancelButton_Click(object sender, RoutedEventArgs e)
+    {
+        DialogResult = false;
+        Close();
+    }
+
+    private void RestoreSettings()
     {
         // Restore original volume
         _volumeService.SetVolume(_originalSettings.Volume);
@@ -144,8 +154,5 @@ public partial class SettingsWindow : Window
         _settings.ShowNotifications = _originalSettings.ShowNotifications;
         _settings.Language = _originalSettings.Language;
         
-        _volumeService.Dispose();
-        DialogResult = false;
-        Close();
     }
 }

@@ -69,7 +69,9 @@ public class AppSettings
             if (File.Exists(SettingsPath))
             {
                 var json = File.ReadAllText(SettingsPath);
-                return JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+                var settings = JsonSerializer.Deserialize<AppSettings>(json) ?? new AppSettings();
+                settings.Volume = Math.Clamp(settings.Volume, 0, 100);
+                return settings;
             }
         }
         catch
@@ -93,7 +95,9 @@ public class AppSettings
             }
             
             var json = JsonSerializer.Serialize(this, new JsonSerializerOptions { WriteIndented = true });
-            File.WriteAllText(SettingsPath, json);
+            var temporaryPath = SettingsPath + ".tmp";
+            File.WriteAllText(temporaryPath, json);
+            File.Move(temporaryPath, SettingsPath, overwrite: true);
         }
         catch
         {

@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <UseWPF>true</UseWPF>
     <UseWindowsForms>true</UseWindowsForms>
+    <Version>1.3.0</Version>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
     <Authors>Noxy</Authors>
     <Company>Noxy</Company>
     <Product>Bluetooth Audio Receiver</Product>
@@ -17,6 +19,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Desktop/**/*.cs;tests/**/*.cs" />
+    <EmbeddedResource Remove="Desktop/**;tests/**" />
+    <None Remove="Desktop/**;tests/**" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.2" />
     <PackageReference Include="NAudio" Version="2.2.1" />
   </ItemGroup>

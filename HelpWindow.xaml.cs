@@ -8,6 +8,7 @@ public partial class HelpWindow : Window
     public HelpWindow()
     {
         InitializeComponent();
+        DataContext = new { AppVersion = typeof(HelpWindow).Assembly.GetName().Version?.ToString(3) };
     }
     
     private void TitleBar_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)

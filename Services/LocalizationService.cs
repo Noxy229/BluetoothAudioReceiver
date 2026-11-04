@@ -11,8 +11,8 @@ namespace BluetoothAudioReceiver.Services;
 /// </summary>
 public class LocalizationService : INotifyPropertyChanged
 {
-    private static LocalizationService? _instance;
-    public static LocalizationService Instance => _instance ??= new LocalizationService();
+    private static readonly Lazy<LocalizationService> Shared = new(() => new LocalizationService());
+    public static LocalizationService Instance => Shared.Value;
     
     private string _currentLanguage = "en";
     private Dictionary<string, string> _cachedTranslation;
@@ -114,11 +114,11 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Established"] = "established.",
                 ["QuickStart"] = "QUICK START",
                 ["QuickStartSteps"] = "1. Pair phone in Windows Bluetooth settings\n2. Start app and select device from list\n3. Click \"Connect\"\n4. Play audio on phone",
-                ["KnownIssues"] = "⚠️ KNOWN ISSUES",
+                ["KnownIssues"] = "KNOWN ISSUES",
                 ["NetworkSlowdown"] = "Network/Download speed drops",
                 ["NetworkSlowdownDesc"] = "Bluetooth and WiFi often share the same 2.4 GHz frequency band, causing interference.",
                 ["Solution"] = "Solution:",
-                ["NetworkSolution"] = "• Use 5 GHz WiFi (best option!)\n• Device Manager → WiFi adapter → Properties\n• Disable \"Bluetooth Collaboration\"\n• Use separate USB Bluetooth dongle",
+                ["NetworkSolution"] = "• Use 5 GHz WiFi\n• Device Manager → WiFi adapter → Properties\n• Disable \"Bluetooth Collaboration\"\n• Use separate USB Bluetooth dongle",
                 ["NoDevicesIssue"] = "No devices in list",
                 ["NoDevicesSolution"] = "• Pair phone with PC in Windows settings\n• Is Bluetooth enabled on phone and PC?\n• Windows 10 Version 2004+ or Windows 11 required",
                 ["ConnectionDrops"] = "Connection drops",
@@ -171,11 +171,11 @@ public class LocalizationService : INotifyPropertyChanged
                 ["Established"] = "hergestellt.",
                 ["QuickStart"] = "SCHNELLSTART",
                 ["QuickStartSteps"] = "1. Handy in Windows Bluetooth-Einstellungen koppeln\n2. App starten und Gerät aus der Liste wählen\n3. \"Verbinden\" klicken\n4. Audio auf dem Handy abspielen",
-                ["KnownIssues"] = "⚠️ BEKANNTE PROBLEME",
+                ["KnownIssues"] = "BEKANNTE PROBLEME",
                 ["NetworkSlowdown"] = "Netzwerk/Download-Geschwindigkeit sinkt",
                 ["NetworkSlowdownDesc"] = "Bluetooth und WiFi nutzen oft das gleiche 2.4 GHz Frequenzband.",
                 ["Solution"] = "Lösung:",
-                ["NetworkSolution"] = "• 5 GHz WiFi nutzen (beste Option!)\n• Geräte-Manager → WiFi-Adapter → Eigenschaften\n• \"Bluetooth Collaboration\" deaktivieren\n• Separaten USB-Bluetooth-Dongle verwenden",
+                ["NetworkSolution"] = "• 5 GHz WiFi nutzen\n• Geräte-Manager → WiFi-Adapter → Eigenschaften\n• \"Bluetooth Collaboration\" deaktivieren\n• Separaten USB-Bluetooth-Dongle verwenden",
                 ["NoDevicesIssue"] = "Keine Geräte in der Liste",
                 ["NoDevicesSolution"] = "• Handy mit PC in Windows-Einstellungen koppeln\n• Bluetooth auf Handy und PC aktiviert?\n• Windows 10 Version 2004+ oder Windows 11 nötig",
                 ["ConnectionDrops"] = "Verbindung bricht ab",

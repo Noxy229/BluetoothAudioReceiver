@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Windows;
 using Windows.Devices.Enumeration;
 using Windows.Media.Audio;
 using BluetoothAudioReceiver.Models;
@@ -85,10 +86,17 @@ public class BluetoothService : IDisposable
         }
         
         _deviceWatcher = null;
+        lock (_lock) _devices.Clear();
     }
     
     private void OnDeviceAdded(DeviceWatcher sender, DeviceInformation device)
     {
+        if (!Application.Current.Dispatcher.CheckAccess())
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() => OnDeviceAdded(sender, device)));
+            return;
+        }
+        if (!ReferenceEquals(sender, _deviceWatcher)) return;
         var btDevice = new BluetoothDevice
         {
             Id = device.Id,
@@ -106,6 +114,12 @@ public class BluetoothService : IDisposable
     
     private void OnDeviceUpdated(DeviceWatcher sender, DeviceInformationUpdate update)
     {
+        if (!Application.Current.Dispatcher.CheckAccess())
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() => OnDeviceUpdated(sender, update)));
+            return;
+        }
+        if (!ReferenceEquals(sender, _deviceWatcher)) return;
         BluetoothDevice? device;
         lock (_lock)
         {
@@ -122,6 +136,12 @@ public class BluetoothService : IDisposable
     
     private void OnDeviceRemoved(DeviceWatcher sender, DeviceInformationUpdate update)
     {
+        if (!Application.Current.Dispatcher.CheckAccess())
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() => OnDeviceRemoved(sender, update)));
+            return;
+        }
+        if (!ReferenceEquals(sender, _deviceWatcher)) return;
         bool removed = false;
         lock (_lock)
         {
@@ -136,6 +156,12 @@ public class BluetoothService : IDisposable
     
     private void OnEnumerationCompleted(DeviceWatcher sender, object args)
     {
+        if (!Application.Current.Dispatcher.CheckAccess())
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(() => OnEnumerationCompleted(sender, args)));
+            return;
+        }
+        if (!ReferenceEquals(sender, _deviceWatcher)) return;
         // Enumeration complete - watcher will continue to monitor for changes
         EnumerationCompleted?.Invoke(this, EventArgs.Empty);
     }

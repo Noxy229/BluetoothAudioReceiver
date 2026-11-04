@@ -28,8 +28,10 @@ public partial class MainWindow : Window
         // Load settings
         _settings = AppSettings.Load();
         
+        LocalizationService.Instance.CurrentLanguage = _settings.Language;
+
         // Initialize ViewModel
-        _viewModel = new MainViewModel();
+        _viewModel = new MainViewModel(_settings);
         DataContext = _viewModel;
         
         // Initialize tray icon
@@ -78,7 +80,7 @@ public partial class MainWindow : Window
         {
             WindowState = WindowState.Minimized;
             Hide();
-            _trayService?.ShowNotification("Minimiert", "Die App läuft weiter im System Tray.");
+            _trayService?.ShowNotification(LocalizationService.Instance["Minimized"], LocalizationService.Instance["AppRunningInTray"]);
         }
         else
         {
@@ -93,6 +95,11 @@ public partial class MainWindow : Window
     
     private void OnViewModelPropertyChanged(object? sender, PropertyChangedEventArgs e)
     {
+        if (!Dispatcher.CheckAccess())
+        {
+            Dispatcher.BeginInvoke(new Action(() => OnViewModelPropertyChanged(sender, e)));
+            return;
+        }
         if (_viewModel == null || _trayService == null) return;
         
         if (e.PropertyName == nameof(MainViewModel.Status))
@@ -103,8 +110,8 @@ public partial class MainWindow : Window
         {
             if (_viewModel.IsConnected)
             {
-                _trayService.ShowNotification("Verbunden", 
-                    $"Audio-Verbindung zu {_viewModel.SelectedDevice?.Name} hergestellt.");
+                _trayService.ShowNotification(LocalizationService.Instance["Connected"],
+                    string.Format(LocalizationService.Instance["AudioReadyFrom"], _viewModel.SelectedDevice?.Name));
                 
                 // Save last device for auto-connect
                 if (_viewModel.SelectedDevice != null)
@@ -136,8 +143,7 @@ public partial class MainWindow : Window
             e.Cancel = true;
             WindowState = WindowState.Minimized;
             Hide();
-            _trayService?.ShowNotification("Minimiert", 
-                "Die App läuft weiter im System Tray.");
+            _trayService?.ShowNotification(LocalizationService.Instance["Minimized"], LocalizationService.Instance["AppRunningInTray"]);
         }
         else
         {
@@ -161,8 +167,6 @@ public partial class MainWindow : Window
     private void OnExitRequested(object? sender, EventArgs e)
     {
         _isExiting = true;
-        _viewModel?.Dispose();
-        _trayService?.Dispose();
         Application.Current.Shutdown();
     }
     
@@ -198,7 +202,7 @@ public partial class MainWindow : Window
         var settingsWindow = new SettingsWindow(_settings) { Owner = this };
         if (settingsWindow.ShowDialog() == true)
         {
-            _settings = AppSettings.Load();
+            // The dialog edits the shared settings instance used by the tray service.
         }
     }
     

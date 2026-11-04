@@ -20,6 +20,11 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private readonly AudioService _audioService;
     private readonly object _devicesLock = new();
     private bool _isEnumerating = true;
+    private bool _disposed;
+    private bool _autoConnectAttempted;
+    private readonly AppSettings _settings;
+    private readonly System.Windows.Threading.Dispatcher _dispatcher = Application.Current.Dispatcher;
+    public bool CanChangeDevice => !IsConnecting && !IsConnected;
     
     [ObservableProperty]
     private ObservableCollection<BluetoothDevice> _devices = new();
@@ -34,16 +39,21 @@ public partial class MainViewModel : ObservableObject, IDisposable
     private string _statusDetail = LocalizationService.Instance.Get("SelectDevice");
     
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanChangeDevice))]
+    [NotifyCanExecuteChangedFor(nameof(RefreshDevicesCommand))]
     private bool _isConnecting;
     
     [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(CanChangeDevice))]
+    [NotifyCanExecuteChangedFor(nameof(RefreshDevicesCommand))]
     private bool _isConnected;
     
     [ObservableProperty]
     private string? _errorMessage;
     
-    public MainViewModel()
+    public MainViewModel(AppSettings settings)
     {
+        _settings = settings;
         _bluetoothService = new BluetoothService();
         _audioService = new AudioService();
         
@@ -66,8 +76,16 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     private void OnDeviceAdded(object? sender, BluetoothDevice device)
     {
+        if (_disposed) return;
+        if (!_dispatcher.CheckAccess())
+        {
+            _dispatcher.BeginInvoke(new Action(() => OnDeviceAdded(sender, device)));
+            return;
+        }
         lock (_devicesLock)
         {
+            for (var i = Devices.Count - 1; i >= 0; i--)
+                if (Devices[i].Id == device.Id) Devices.RemoveAt(i);
             Devices.Add(device);
             if (!_isEnumerating)
             {
@@ -78,15 +96,38 @@ public partial class MainViewModel : ObservableObject, IDisposable
 
     private void OnEnumerationCompleted(object? sender, EventArgs e)
     {
+        if (_disposed) return;
+        if (!_dispatcher.CheckAccess())
+        {
+            _dispatcher.BeginInvoke(new Action(() => OnEnumerationCompleted(sender, e)));
+            return;
+        }
         lock (_devicesLock)
         {
             _isEnumerating = false;
             StatusDetail = string.Format(LocalizationService.Instance.Get("DevicesFound"), Devices.Count);
         }
+        if (!_autoConnectAttempted && _settings.AutoConnect && !IsConnected && !IsConnecting)
+        {
+            _autoConnectAttempted = true;
+            foreach (var device in Devices)
+            {
+                if (device.Id != _settings.LastDeviceId) continue;
+                SelectedDevice = device;
+                OpenConnectionCommand.Execute(null);
+                break;
+            }
+        }
     }
     
     private void OnDeviceRemoved(object? sender, string deviceId)
     {
+        if (_disposed) return;
+        if (!_dispatcher.CheckAccess())
+        {
+            _dispatcher.BeginInvoke(new Action(() => OnDeviceRemoved(sender, deviceId)));
+            return;
+        }
         lock (_devicesLock)
         {
             for (int i = Devices.Count - 1; i >= 0; i--)
@@ -103,6 +144,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     private void OnAudioConnectionStateChanged(object? sender, bool connected)
     {
+        if (_disposed) return;
+        if (!_dispatcher.CheckAccess())
+        {
+            _dispatcher.BeginInvoke(new Action(() => OnAudioConnectionStateChanged(sender, connected)));
+            return;
+        }
         // WPF automatically marshals PropertyChanged events for scalar properties to the UI thread
         IsConnected = connected;
         IsConnecting = false;
@@ -122,6 +169,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     private void OnStreamingStateChanged(object? sender, string state)
     {
+        if (_disposed) return;
+        if (!_dispatcher.CheckAccess())
+        {
+            _dispatcher.BeginInvoke(new Action(() => OnStreamingStateChanged(sender, state)));
+            return;
+        }
         // WPF automatically marshals PropertyChanged events for scalar properties to the UI thread
         Status = LocalizationService.Instance.Get(state);
         if (state == "Streaming")
@@ -132,6 +185,12 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     private void OnAudioError(object? sender, string error)
     {
+        if (_disposed) return;
+        if (!_dispatcher.CheckAccess())
+        {
+            _dispatcher.BeginInvoke(new Action(() => OnAudioError(sender, error)));
+            return;
+        }
         // WPF automatically marshals PropertyChanged events for scalar properties to the UI thread
         ErrorMessage = error;
         IsConnecting = false;
@@ -140,14 +199,25 @@ public partial class MainViewModel : ObservableObject, IDisposable
     [RelayCommand]
     private async Task OpenConnectionAsync()
     {
-        if (SelectedDevice == null) return;
+        if (_disposed || SelectedDevice == null || !CanChangeDevice) return;
         
         IsConnecting = true;
         Status = LocalizationService.Instance.Get("Connecting");
         StatusDetail = string.Format(LocalizationService.Instance.Get("OpeningConnectionTo"), SelectedDevice.Name);
         ErrorMessage = null;
         
-        await _audioService.OpenConnectionAsync(SelectedDevice.Id);
+        try
+        {
+            if (!await _audioService.OpenConnectionAsync(SelectedDevice.Id))
+            {
+                Status = LocalizationService.Instance.Get("Idle");
+                StatusDetail = LocalizationService.Instance.Get("SelectDevice");
+            }
+        }
+        finally
+        {
+            IsConnecting = false;
+        }
     }
     
     [RelayCommand]
@@ -156,14 +226,15 @@ public partial class MainViewModel : ObservableObject, IDisposable
         await _audioService.CloseConnectionAsync();
     }
     
-    [RelayCommand]
+    [RelayCommand(CanExecute = nameof(CanChangeDevice))]
     private void RefreshDevices()
     {
+        _bluetoothService.StopWatching();
         lock (_devicesLock)
         {
             Devices.Clear();
+            SelectedDevice = null;
         }
-        _bluetoothService.StopWatching();
 
         _isEnumerating = true;
         StatusDetail = LocalizationService.Instance.Get("Scanning");
@@ -172,6 +243,8 @@ public partial class MainViewModel : ObservableObject, IDisposable
     
     public void Dispose()
     {
+        if (_disposed) return;
+        _disposed = true;
         _bluetoothService.DeviceAdded -= OnDeviceAdded;
         _bluetoothService.DeviceRemoved -= OnDeviceRemoved;
         _bluetoothService.EnumerationCompleted -= OnEnumerationCompleted;

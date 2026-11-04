@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Bluetooth Audio Receiver
+Comment=Play audio from a paired Bluetooth phone
+Exec=bluetooth-audio-receiver
+Icon=audio-speakers
+Terminal=false
+Categories=AudioVideo;Audio;

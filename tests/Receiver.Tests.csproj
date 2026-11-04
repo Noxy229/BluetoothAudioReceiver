@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../Desktop/Services/*.cs" Link="Services/%(Filename)%(Extension)" />
+    <Compile Include="../Services/AudioService.cs" Link="AudioService.cs" />
+    <Compile Include="../Services/LocalizationService.cs" Link="LocalizationService.cs" />
+  </ItemGroup>
+</Project>

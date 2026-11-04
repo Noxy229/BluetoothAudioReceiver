@@ -24,3 +24,7 @@ Properties/PublishProfiles/
 
 # Certificates
 *.pfx
+
+# Avalonia build cache
+.avalonia-build-tasks/
+artifacts/

@@ -144,7 +144,7 @@
                     <Border Style="{StaticResource CardStyle}">
                         <StackPanel>
                             <TextBlock Foreground="{StaticResource TextSecondaryBrush}" FontSize="12">
-                                <Run Text="Version: "/><Run Text="2.0.0" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/><LineBreak/>
+                                <Run Text="Version: "/><Run Text="{Binding AppVersion}" FontWeight="SemiBold" Foreground="{StaticResource TextPrimaryBrush}"/><LineBreak/>
                                 <Run Text="Entwickelt mit .NET 8 und WPF"/>
                             </TextBlock>
                         </StackPanel>

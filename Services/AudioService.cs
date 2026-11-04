@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Media.Audio;
@@ -11,6 +12,9 @@ namespace BluetoothAudioReceiver.Services;
 /// </summary>
 public class AudioService : IDisposable
 {
+    private readonly SemaphoreSlim _connectionGate = new(1, 1);
+    private bool _disposed;
+    private bool _isConnected;
     private AudioPlaybackConnection? _audioConnection;
     private string? _currentDeviceId;
     private const int MaxRetries = 3;
@@ -20,7 +24,7 @@ public class AudioService : IDisposable
     public event EventHandler<string>? StreamingStateChanged;
     public event EventHandler<string>? ErrorOccurred;
     
-    public bool IsConnected => _audioConnection != null;
+    public bool IsConnected => _isConnected;
     public bool IsStreaming { get; private set; }
     public string? CurrentDeviceId => _currentDeviceId;
     
@@ -30,14 +34,16 @@ public class AudioService : IDisposable
     /// </summary>
     public async Task<bool> OpenConnectionAsync(string deviceId)
     {
+        await _connectionGate.WaitAsync();
         try
         {
-            // Close any existing connection first
-            await CloseConnectionAsync();
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            ReleaseConnection();
             
             // Retry logic for more reliable connections
             for (int attempt = 1; attempt <= MaxRetries; attempt++)
             {
+                if (_disposed) return false;
                 try
                 {
                     var result = await TryOpenConnectionAsync(deviceId, attempt);
@@ -53,6 +59,8 @@ public class AudioService : IDisposable
                 }
                 catch (Exception ex)
                 {
+                    ReleaseConnection();
+                    if (_disposed) return false;
                     if (attempt == MaxRetries)
                     {
                         ErrorOccurred?.Invoke(this, $"Error opening connection: {ex.Message}");
@@ -70,6 +78,10 @@ public class AudioService : IDisposable
             ErrorOccurred?.Invoke(this, $"Error opening connection: {ex.Message}");
             return false;
         }
+        finally
+        {
+            _connectionGate.Release();
+        }
     }
     
     private async Task<bool> TryOpenConnectionAsync(string deviceId, int attempt)
@@ -86,16 +98,19 @@ public class AudioService : IDisposable
             return false;
         }
         
+        var connection = _audioConnection;
         _currentDeviceId = deviceId;
         
         // Subscribe to state changes (event-driven, no polling!)
         _audioConnection.StateChanged += OnConnectionStateChanged;
         
         // Start the audio connection
-        await _audioConnection.StartAsync();
+        await connection.StartAsync();
+        if (_disposed) return false;
         
         // Open the connection to begin receiving audio
-        var result = await _audioConnection.OpenAsync();
+        var result = await connection.OpenAsync();
+        if (_disposed) return false;
         
         if (result.Status != AudioPlaybackConnectionOpenResultStatus.Success)
         {
@@ -108,21 +123,20 @@ public class AudioService : IDisposable
             }
             
             // Clean up failed connection
-            _audioConnection.StateChanged -= OnConnectionStateChanged;
-            _audioConnection.Dispose();
-            _audioConnection = null;
+            ReleaseConnection();
             return false;
         }
         
         // Wait for the audio subsystem to initialize and reach the Opened state
         // This is faster than a fixed delay if the state updates quickly
-        await WaitForStateAsync(_audioConnection, AudioPlaybackConnectionState.Opened, 500);
+        await WaitForStateAsync(connection, AudioPlaybackConnectionState.Opened, 500);
+        if (_disposed) return false;
         
         // Force a state update to ensure we're in the right state
-        IsStreaming = _audioConnection.State == AudioPlaybackConnectionState.Opened;
-        StreamingStateChanged?.Invoke(this, IsStreaming ? "Streaming" : "Connected");
-        
+        IsStreaming = connection.State == AudioPlaybackConnectionState.Opened;
+        _isConnected = true;
         ConnectionStateChanged?.Invoke(this, true);
+        StreamingStateChanged?.Invoke(this, IsStreaming ? "Streaming" : "Connected");
         return true;
     }
 
@@ -136,7 +150,7 @@ public class AudioService : IDisposable
             return;
         }
 
-        var tcs = new TaskCompletionSource<bool>();
+        var tcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         TypedEventHandler<AudioPlaybackConnection, object> handler = (sender, args) =>
         {
@@ -170,22 +184,41 @@ public class AudioService : IDisposable
     /// </summary>
     public async Task CloseConnectionAsync()
     {
-        if (_audioConnection != null)
+        await _connectionGate.WaitAsync();
+        try
         {
-            _audioConnection.StateChanged -= OnConnectionStateChanged;
-            _audioConnection.Dispose();
-            _audioConnection = null;
-            _currentDeviceId = null;
-            IsStreaming = false;
-            
-            ConnectionStateChanged?.Invoke(this, false);
+            ReleaseConnection();
         }
-        
-        await Task.CompletedTask;
+        finally
+        {
+            _connectionGate.Release();
+        }
+    }
+            
+    private void ReleaseConnection()
+    {
+        var connection = _audioConnection;
+        _audioConnection = null;
+        _currentDeviceId = null;
+        IsStreaming = false;
+        var wasConnected = _isConnected;
+        _isConnected = false;
+        if (connection != null)
+        {
+            connection.StateChanged -= OnConnectionStateChanged;
+            connection.Dispose();
+        }
+        if (wasConnected) ConnectionStateChanged?.Invoke(this, false);
     }
     
     private void OnConnectionStateChanged(AudioPlaybackConnection sender, object args)
     {
+        if (_disposed || !ReferenceEquals(sender, _audioConnection)) return;
+        if (_isConnected && sender.State == AudioPlaybackConnectionState.Closed)
+        {
+            ReleaseConnection();
+            return;
+        }
         // Update streaming state based on connection state
         var wasStreaming = IsStreaming;
         IsStreaming = sender.State == AudioPlaybackConnectionState.Opened;
@@ -198,24 +231,8 @@ public class AudioService : IDisposable
     
     public void Dispose()
     {
-        // Clean up synchronously to ensure resources are released before app exit
-        if (_audioConnection != null)
-        {
-            try
-            {
-                _audioConnection.StateChanged -= OnConnectionStateChanged;
-                _audioConnection.Dispose();
-            }
-            catch
-            {
-                // Ignore errors during disposal
-            }
-            finally
-            {
-                _audioConnection = null;
-            }
-        }
-        _currentDeviceId = null;
-        IsStreaming = false;
+        if (_disposed) return;
+        _disposed = true;
+        ReleaseConnection();
     }
 }

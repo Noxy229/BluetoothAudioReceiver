@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="320" viewBox="0 0 1200 320" role="img" aria-labelledby="title desc">
+  <title id="title">Bluetooth Audio Receiver</title>
+  <desc id="desc">Your phone. Your music. Your speakers. Windows receiver, Linux preview, macOS AirPlay setup.</desc>
+  <rect width="1200" height="320" rx="16" fill="#101216"/>
+  <path d="M32 274H1168" stroke="#30343C"/>
+  <rect x="44" y="42" width="54" height="54" rx="12" fill="#087CC1"/>
+  <path d="M70 51v36l12-10-24-19m12-7 12 10-24 19" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="116" y="76" fill="#AAB2BF" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="16" letter-spacing="3">AUDIO RECEIVER</text>
+  <text x="44" y="159" fill="#F1F3F6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-weight="700" font-size="52">Your phone. Your music.</text>
+  <text x="44" y="222" fill="#F1F3F6" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-weight="700" font-size="52">Your speakers.</text>
+  <g stroke="#309CDF" stroke-width="5" stroke-linecap="round">
+    <path d="M900 150v30m22-55v80m22-105v130m22-94v58m22-117v176m22-142v108m22-82v56m22-99v142m22-107v72m22-51v30"/>
+  </g>
+  <text x="44" y="301" fill="#AAB2BF" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14">WINDOWS / BLUETOOTH</text>
+  <text x="345" y="301" fill="#AAB2BF" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14">LINUX / BLUETOOTH PREVIEW</text>
+  <text x="705" y="301" fill="#AAB2BF" font-family="Segoe UI, Helvetica, Arial, sans-serif" font-size="14">macOS / AIRPLAY SETUP</text>
+</svg>
