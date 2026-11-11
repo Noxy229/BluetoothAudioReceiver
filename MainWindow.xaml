@@ -166,6 +166,7 @@
                             <TextBlock Text="{Binding [Devices], Source={x:Static services:LocalizationService.Instance}}" Style="{StaticResource SectionHeaderStyle}" Margin="0"/>
                             <Button Content="⟳" 
                                     Command="{Binding RefreshDevicesCommand}"
+                                    Style="{StaticResource IconButtonStyle}"
                                     HorizontalAlignment="Right"
                                     FontSize="14"
                                     Padding="6,2"
@@ -181,7 +182,8 @@
                         <ListBox Grid.Row="1" 
                                  ItemsSource="{Binding Devices}" 
                                  SelectedItem="{Binding SelectedDevice}"
-                                 IsEnabled="{Binding CanChangeDevice}"
+                                 IsHitTestVisible="{Binding CanChangeDevice}"
+                                 Focusable="{Binding CanChangeDevice}"
                                  Background="Transparent"
                                  BorderThickness="0"
                                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
